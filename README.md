@@ -1,14 +1,33 @@
-# HoneyShop
+# 🍯HoneyShop: A Food Journaling App with Gamification
+~ Log Meals · Earn Honeypots · Decorate Your Shop ~
 
-A food journaling app with gamification — log meals, earn Honeypots, decorate your shop.
+# Features
+- Log your recipes and food reviews to earn opening funds
+- Watch your real-life efforts magically turn int a thriving little shop
+- Custmize your shop with thousands of decorations and furniture pieces
+- Invite family, lovers, and friends to help run the shop together
+- Become an amazing chef, food critic, interior designer, and shop owner all at once!
 
-## Getting Started
+# Language
+- English
+- Chinese (Traditional) [coming soon]
 
+# Developer
+Ricy Hsu
+
+------------------------------------------
+# 🔽 Getting Started 🔽
+
+## Prerequisites
+- Node.js v18+
+- npm or yarn
+- A modern browser (Chrome, Safari, Firefox)
+
+## Install the project
 ```bash
 npm install
 npm run dev
 ```
-
 App will open at http://localhost:3000
 
 ## Build for Production
@@ -29,3 +48,4 @@ HoneyShop/
     ├── main.jsx       # entry point
     └── App.jsx        # full app (feastboard-v3)
 ```
+
