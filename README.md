@@ -1,51 +1,36 @@
-# 🍯HoneyShop: A Food Journaling App with Gamification
+# 🍯 HoneyShop: A Food Journaling App with Gamification
 ~ Log Meals · Earn Honeypots · Decorate Your Shop ~
 
-# Features
+## Features
 - Log your recipes and food reviews to earn opening funds
-- Watch your real-life efforts magically turn int a thriving little shop
-- Custmize your shop with thousands of decorations and furniture pieces
+- Watch your real-life efforts magically turn into a thriving little shop
+- Customize your shop with thousands of decorations and furniture pieces
 - Invite family, lovers, and friends to help run the shop together
 - Become an amazing chef, food critic, interior designer, and shop owner all at once!
 
-# Language
-- English
-- Chinese (Traditional) [coming soon]
-
-# Developer
-Ricy Hsu
-
-------------------------------------------
-# 🔽 Getting Started 🔽
-
-## Prerequisites
-- Node.js v18+
-- npm or yarn
-- A modern browser (Chrome, Safari, Firefox)
-
-## Install the project
-```bash
-npm install
-npm run dev
-```
-App will open at http://localhost:3000
-
-## Build for Production
-
-```bash
-npm run build
-npm run preview
-```
+## Tech Stack
+- **React 18** + **Vite** (web app)
+- Static assets served from `public/`
 
 ## Project Structure
 
 ```
 HoneyShop/
+├── src/                          # Source code
+│   ├── main.jsx                  # Entry point
+│   └── App.jsx                   # Main app component
+│
+├── public/                       # Static assets (deployed as-is)
+│   └── images/
+│       ├── avatars/              # User avatar images
+│       │               
+│       ├── furniture/            # Shop furniture images
+│       │   └── {name}_WxH.png    # Named by grid size
+│       └── currency/             # In-app currency icons (bagel, honeypot)
+│
+├── .gitignore
 ├── index.html
-├── package.json
 ├── vite.config.js
-└── src/
-    ├── main.jsx       # entry point
-    └── App.jsx        # full app (feastboard-v3)
+├── package.json
+└── README.md
 ```
-

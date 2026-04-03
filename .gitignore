@@ -1,0 +1,26 @@
+# ── Dependencies ──────────────────────────────────────────────
+node_modules/
+
+# ── Build output ──────────────────────────────────────────────
+dist/
+dist-ssr/
+*.local
+
+# ── Dev assets (原始圖檔、設計稿、筆記、文件) ───────────────
+Dev/
+Project HoneyShop/
+
+# ── Cowork / IDE ──────────────────────────────────────────────
+.claude/
+.DS_Store
+Thumbs.db
+
+# ── Env & secrets ─────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Logs ──────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
