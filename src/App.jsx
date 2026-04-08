@@ -35,35 +35,56 @@ const CUISINE_TAGS=[
   {id:"bbq",label:"BBQ",dineoutonly:0},{id:"hotpot",label:"Hot Pot",dineoutonly:0},
   {id:"healthy",label:"Healthy",dineoutonly:0},{id:"spicy",label:"Spicy",dineoutonly:0},
   {id:"brunch",label:"Brunch",dineoutonly:0},
-  // dineout-only
   {id:"ambiance",label:"Ambiance",dineoutonly:1},{id:"date_spot",label:"Date Spot",dineoutonly:1},
   {id:"insta",label:"Instagrammable",dineoutonly:1},{id:"hidden_gem",label:"Hidden Gem",dineoutonly:1},
   {id:"fast_casual",label:"Fast Casual",dineoutonly:1},{id:"fine_dining",label:"Fine Dining",dineoutonly:1},
   {id:"takeout",label:"Takeout",dineoutonly:1},{id:"rooftop",label:"Rooftop",dineoutonly:1},
 ];
 
-/* ── STORE + GACHA TABLE (merged) ──────────────────────── */
+/* ── STORE TABLE (03_Store) ─────────────────────────────── */
+/* list_category values: Furniture | Decoration | Wall & Floor  */
 const STORE_ITEMS=[
-  {id:"sign_wood", list_category:"Signs",  name:"Wooden Sign",  price:80,  item_qty:99,rarity:"Common",   emoji:"🪵",item_col:"#C4895A",gacha_only:false},
-  {id:"table_b",   list_category:"Seating",name:"Wooden Table", price:120, item_qty:99,rarity:"Common",   emoji:"🪑",item_col:"#C4895A",gacha_only:false},
-  {id:"plant_s",   list_category:"Decor",  name:"Mini Plant",   price:60,  item_qty:99,rarity:"Common",   emoji:"🌱",item_col:"#4DC87A",gacha_only:false},
-  {id:"lamp_b",    list_category:"Lights", name:"Pendant Lamp", price:100, item_qty:99,rarity:"Common",   emoji:"🔆",item_col:"#FFB830",gacha_only:false},
-  {id:"art_ramen", list_category:"Art",    name:"Ramen Mural",  price:200, item_qty:99,rarity:"Common",   emoji:"🖼️",item_col:"#FF8C5A",gacha_only:false},
-  {id:"lucky_cat", list_category:"Props",  name:"Lucky Cat",    price:180, item_qty:99,rarity:"Common",   emoji:"🐱",item_col:"#FFB830",gacha_only:false},
-  {id:"plant_b",   list_category:"Decor",  name:"Banyan Tree",  price:350, item_qty:99,rarity:"Rare",     emoji:"🌳",item_col:"#2DA856",gacha_only:false},
-  {id:"lamp_f",    list_category:"Lights", name:"Crystal Lamp", price:500, item_qty:99,rarity:"Rare",     emoji:"🔮",item_col:"#C084FC",gacha_only:false},
-  {id:"art_sushi", list_category:"Art",    name:"Sushi Mural",  price:300, item_qty:99,rarity:"Rare",     emoji:"🎨",item_col:"#3DD8E8",gacha_only:false},
-  // gacha-only (bagels)
-  {id:"sign_neon", list_category:"Signs",  name:"Neon Sign",    bagels:3,  item_qty:1, rarity:"Rare",     emoji:"💡",item_col:"#FF6BAD",gacha_only:true},
-  {id:"fairy_lgt", list_category:"Lights", name:"Fairy Lights", bagels:5,  item_qty:1, rarity:"Rare",     emoji:"🌟",item_col:"#FFC0CB",gacha_only:true},
-  {id:"trophy",    list_category:"Props",  name:"Chef Trophy",  bagels:6,  item_qty:1, rarity:"Epic",     emoji:"🏆",item_col:"#FFD700",gacha_only:true},
-  {id:"fountain",  list_category:"Props",  name:"Mini Fountain",bagels:10, item_qty:1, rarity:"Epic",     emoji:"⛲", item_col:"#3DD8E8",gacha_only:true},
-  {id:"sakura",    list_category:"Decor",  name:"Sakura Tree",  bagels:12, item_qty:1, rarity:"Legendary",emoji:"🌸",item_col:"#FFB7C5",gacha_only:true},
-  {id:"gold_tbl",  list_category:"Seating",name:"Gold Table",   bagels:15, item_qty:1, rarity:"Legendary",emoji:"✨",item_col:"#FFD700",gacha_only:true},
-  {id:"rainbow",   list_category:"Decor",  name:"Rainbow Arch", bagels:20, item_qty:1, rarity:"Unique",   emoji:"🌈",item_col:"#FF6B6B",gacha_only:true},
+  {id:"sign_wood", list_category:"Decoration",  name:"Wooden Sign",   price:80,  item_qty:99,rarity:"Common",   emoji:"🪵",item_col:"#C4895A",gacha_only:false},
+  {id:"table_b",   list_category:"Furniture",   name:"Wooden Table",  price:120, item_qty:99,rarity:"Common",   emoji:"🪑",item_col:"#C4895A",gacha_only:false},
+  {id:"plant_s",   list_category:"Decoration",  name:"Mini Plant",    price:60,  item_qty:99,rarity:"Common",   emoji:"🌱",item_col:"#4DC87A",gacha_only:false},
+  {id:"lamp_b",    list_category:"Decoration",  name:"Pendant Lamp",  price:100, item_qty:99,rarity:"Common",   emoji:"🔆",item_col:"#FFB830",gacha_only:false},
+  {id:"art_ramen", list_category:"Wall & Floor",name:"Ramen Mural",   price:200, item_qty:99,rarity:"Common",   emoji:"🖼️",item_col:"#FF8C5A",gacha_only:false},
+  {id:"lucky_cat", list_category:"Decoration",  name:"Lucky Cat",     price:180, item_qty:99,rarity:"Common",   emoji:"🐱",item_col:"#FFB830",gacha_only:false},
+  {id:"plant_b",   list_category:"Decoration",  name:"Banyan Tree",   price:350, item_qty:99,rarity:"Rare",     emoji:"🌳",item_col:"#2DA856",gacha_only:false},
+  {id:"lamp_f",    list_category:"Decoration",  name:"Crystal Lamp",  price:500, item_qty:99,rarity:"Rare",     emoji:"🔮",item_col:"#C084FC",gacha_only:false},
+  {id:"art_sushi", list_category:"Wall & Floor",name:"Sushi Mural",   price:300, item_qty:99,rarity:"Rare",     emoji:"🎨",item_col:"#3DD8E8",gacha_only:false},
+  // gacha-only
+  {id:"sign_neon", list_category:"Decoration",  name:"Neon Sign",     bagels:3,  item_qty:1, rarity:"Rare",     emoji:"💡",item_col:"#FF6BAD",gacha_only:true},
+  {id:"fairy_lgt", list_category:"Decoration",  name:"Fairy Lights",  bagels:5,  item_qty:1, rarity:"Rare",     emoji:"🌟",item_col:"#FFC0CB",gacha_only:true},
+  {id:"trophy",    list_category:"Decoration",  name:"Chef Trophy",   bagels:6,  item_qty:1, rarity:"Epic",     emoji:"🏆",item_col:"#FFD700",gacha_only:true},
+  {id:"fountain",  list_category:"Decoration",  name:"Mini Fountain", bagels:10, item_qty:1, rarity:"Epic",     emoji:"⛲", item_col:"#3DD8E8",gacha_only:true},
+  {id:"sakura",    list_category:"Decoration",  name:"Sakura Tree",   bagels:12, item_qty:1, rarity:"Legendary",emoji:"🌸",item_col:"#FFB7C5",gacha_only:true},
+  {id:"gold_tbl",  list_category:"Furniture",   name:"Gold Table",    bagels:15, item_qty:1, rarity:"Legendary",emoji:"✨",item_col:"#FFD700",gacha_only:true},
+  {id:"rainbow",   list_category:"Wall & Floor",name:"Rainbow Arch",  bagels:20, item_qty:1, rarity:"Unique",   emoji:"🌈",item_col:"#FF6B6B",gacha_only:true},
+  {id:"noren",     list_category:"Wall & Floor",name:"Noren Curtain", bagels:8,  item_qty:1, rarity:"Rare",     emoji:"🎏",item_col:"#E8935A",gacha_only:true},
+  {id:"lantern",   list_category:"Decoration",  name:"Paper Lantern", bagels:4,  item_qty:1, rarity:"Common",   emoji:"🏮",item_col:"#FF6B6B",gacha_only:true},
 ];
 
-/* ── INGREDIENT TABLE (mock) ────────────────────────────── */
+/* ── GACHA TABLE (08_Gacha) — determines pools & count ─── */
+const GACHA_TABLE=[
+  {
+    pool_id:"cozy",
+    pool_name:"Cozy Corner Gacha",
+    pool_emoji:"🎲",
+    item_ids:["sign_neon","fairy_lgt","trophy","fountain","sakura","gold_tbl","rainbow"],
+  },
+  {
+    pool_id:"spring",
+    pool_name:"Spring Blossom Special",
+    pool_emoji:"🌸",
+    item_ids:["sakura","rainbow","fairy_lgt","noren","lantern","fountain"],
+  },
+];
+
+/* ── GACHA PRICE ────────────────────────────────────────── */
+const GACHA_BAGEL_PRICE=1;
+
+/* ── INGREDIENT TABLE ───────────────────────────────────── */
 const INGREDIENTS=[
   {id:"chicken",name:"Chicken Breast",emoji:"🍗",unit:"piece",food_type:"protein"},
   {id:"egg",    name:"Egg",           emoji:"🥚",unit:"piece",food_type:"protein"},
@@ -81,23 +102,23 @@ const INGREDIENTS=[
   {id:"flour",  name:"Flour",         emoji:"🌾",unit:"g",    food_type:"staple"},
 ];
 
-/* ── ACHIEVEMENTS TABLE ─────────────────────────────────── */
+/* ── ACHIEVEMENTS TABLE (with reward slots) ─────────────── */
 const ACHIEVEMENTS=[
-  {id:"first_cook",icon:"🍳",name:"First Dish",     desc:"Log your first home-cooked meal",  cond:s=>s.records.filter(r=>r.type==="cook").length>=1},
-  {id:"first_dine",icon:"🍽️",name:"First Outing",  desc:"Log your first dining experience",  cond:s=>s.records.filter(r=>r.type==="dine").length>=1},
-  {id:"cook_5",    icon:"👨‍🍳",name:"Home Chef",    desc:"Cook 5 homemade dishes",            cond:s=>s.records.filter(r=>r.type==="cook").length>=5},
-  {id:"cook_10",   icon:"🌟",name:"Kitchen Star",   desc:"Cook 10 homemade dishes",           cond:s=>s.records.filter(r=>r.type==="cook").length>=10},
-  {id:"dine_5",    icon:"🗺️",name:"Food Explorer", desc:"Log 5 dining experiences",          cond:s=>s.records.filter(r=>r.type==="dine").length>=5},
-  {id:"earn_500",  icon:"💰",name:"Honey Hoarder",  desc:"Accumulate 500 🍯",                 cond:s=>s.totalEarned>=500},
-  {id:"shop_1",    icon:"🛋️",name:"First Decor",   desc:"Own your first decoration",         cond:s=>s.owned.length>=1},
-  {id:"shop_5",    icon:"🏠",name:"Cozy Shop",      desc:"Own 5 decorations",                 cond:s=>s.owned.length>=5},
-  {id:"streak_3",  icon:"🔥",name:"On a Roll",      desc:"Log food 3 days in a row",         cond:s=>s.streak>=3},
-  {id:"streak_7",  icon:"🗓️",name:"Week Warrior",  desc:"Log food 7 days in a row",         cond:s=>s.streak>=7},
-  {id:"log_10",    icon:"📔",name:"Getting Serious",desc:"Log 10 entries total",             cond:s=>s.records.length>=10},
-  {id:"rare_1",    icon:"💎",name:"Rare Collector", desc:"Pull a Rare or higher item",       cond:s=>s.owned.some(id=>{const r=STORE_ITEMS.find(i=>i.id===id)?.rarity;return["Rare","Epic","Legendary","Unique"].includes(r);})},
-  {id:"fridge_5",  icon:"🧊",name:"Stocked Up",     desc:"Add 5 ingredients to fridge",      cond:s=>s.fridge.length>=5},
-  {id:"first_bagel",icon:"🥯",name:"Bagel Baker",   desc:"Earn your first Bagel token",      cond:s=>s.totalBagels>=1},
-  {id:"npc_1",     icon:"👥",name:"Not Alone",      desc:"Add your first NPC character",     cond:s=>s.npcs.length>=1},
+  {id:"first_cook", icon:"🍳",name:"First Dish",      desc:"Log your first home-cooked meal",   reward:{icon:"🥄",name:"Wooden Spoon",   rarity:"Common"},   cond:s=>s.records.filter(r=>r.type==="cook").length>=1},
+  {id:"first_dine", icon:"🍽️",name:"First Outing",   desc:"Log your first dining experience",   reward:{icon:"🍽️",name:"Table Setting",  rarity:"Common"},   cond:s=>s.records.filter(r=>r.type==="dine").length>=1},
+  {id:"cook_5",     icon:"👨‍🍳",name:"Home Chef",     desc:"Cook 5 homemade dishes",             reward:{icon:"👨‍🍳",name:"Chef Hat Pin",  rarity:"Rare"},     cond:s=>s.records.filter(r=>r.type==="cook").length>=5},
+  {id:"cook_10",    icon:"🌟",name:"Kitchen Star",    desc:"Cook 10 homemade dishes",            reward:{icon:"⭐",name:"Gold Star Frame", rarity:"Epic"},     cond:s=>s.records.filter(r=>r.type==="cook").length>=10},
+  {id:"dine_5",     icon:"🗺️",name:"Food Explorer",  desc:"Log 5 dining experiences",           reward:{icon:"🗺️",name:"Explorer Badge", rarity:"Rare"},     cond:s=>s.records.filter(r=>r.type==="dine").length>=5},
+  {id:"earn_500",   icon:"💰",name:"Honey Hoarder",   desc:"Accumulate 500 🍯",                  reward:{icon:"🍯",name:"Golden Pot",     rarity:"Epic"},     cond:s=>s.totalEarned>=500},
+  {id:"shop_1",     icon:"🛋️",name:"First Decor",    desc:"Own your first decoration",          reward:{icon:"🛋️",name:"Mini Sofa Tag", rarity:"Common"},   cond:s=>s.owned.length>=1},
+  {id:"shop_5",     icon:"🏠",name:"Cozy Shop",       desc:"Own 5 decorations",                  reward:{icon:"🏠",name:"House Banner",   rarity:"Rare"},     cond:s=>s.owned.length>=5},
+  {id:"streak_3",   icon:"🔥",name:"On a Roll",       desc:"Log food 3 days in a row",           reward:{icon:"🔥",name:"Flame Charm",    rarity:"Common"},   cond:s=>s.streak>=3},
+  {id:"streak_7",   icon:"🗓️",name:"Week Warrior",   desc:"Log food 7 days in a row",           reward:{icon:"🗓️",name:"Calendar Pin",  rarity:"Rare"},     cond:s=>s.streak>=7},
+  {id:"log_10",     icon:"📔",name:"Getting Serious", desc:"Log 10 entries total",               reward:{icon:"📔",name:"Journal Cover",  rarity:"Rare"},     cond:s=>s.records.length>=10},
+  {id:"rare_1",     icon:"💎",name:"Rare Collector",  desc:"Pull a Rare or higher item",         reward:{icon:"💎",name:"Diamond Frame",  rarity:"Epic"},     cond:s=>s.owned.some(id=>{const r=STORE_ITEMS.find(i=>i.id===id)?.rarity;return["Rare","Epic","Legendary","Unique"].includes(r);})},
+  {id:"fridge_5",   icon:"🧊",name:"Stocked Up",      desc:"Add 5 ingredients to fridge",        reward:{icon:"🧊",name:"Ice Crystal",    rarity:"Common"},   cond:s=>s.fridge.length>=5},
+  {id:"first_bagel",icon:"🥯",name:"Bagel Baker",     desc:"Earn your first Bagel token",        reward:{icon:"🥯",name:"Bagel Token",    rarity:"Common"},   cond:s=>s.totalBagels>=1},
+  {id:"npc_1",      icon:"👥",name:"Not Alone",       desc:"Add your first NPC character",       reward:{icon:"👥",name:"NPC Card",       rarity:"Rare"},     cond:s=>s.npcs.length>=1},
 ];
 
 const MEAL_FILTERS=[
@@ -111,7 +132,7 @@ const FOOD_EMOJIS=["🍳","🍜","🍣","🍕","🥗","🍱","🥩","🍰","🍗
 const mealIcon={Breakfast:"☀️",Lunch:"🌤️",Dinner:"🌙","Late Night":"🌃","Afternoon Tea":"☕"};
 const NPC_AVATARS=["👦","👧","🧑","👱","🧔","🧓","👴","👵","🧙","🧚","🧜","🦸","🧑‍🍳","🧑‍🎨","🤖","👻","🐱","🐶","🐰","🦊","🐻","🐼","🦁","🐸"];
 const NPC_LINES=["This smells amazing!","Table for two?","I'll have the usual!","Best spot in town!","Is the special ready?","Cozy place!","Can I see the menu?","The food here is 💯","When does kitchen open?","Love this restaurant!"];
-const MOCK_ADDR=["台北市信義區松壽路12號","台北市大安區忠孝東路四段181號","台北市中山區南京東路二段15號","新北市板橋區文化路一段25號","台中市西屯區台灣大道三段99號","高雄市前鎮區中山二路123號","123 Main St, San Francisco, CA","456 Melrose Ave, Los Angeles, CA","789 5th Ave, New York, NY","321 Michigan Ave, Chicago, IL"];
+const MOCK_ADDR=["123 Main St, San Francisco, CA","456 Melrose Ave, Los Angeles, CA","789 5th Ave, New York, NY","321 Michigan Ave, Chicago, IL"];
 
 /* ── STATE ──────────────────────────────────────────────── */
 const defaults=()=>({
@@ -138,6 +159,7 @@ export default function App(){
   const [gachaRes,setGachaRes]=useState(null);
   const [gachaAnim,setGachaAnim]=useState(false);
   const [showProfile,setShowProfile]=useState(false);
+  const [shopFlash,setShopFlash]=useState(false);
 
   const setS=upd=>{
     setS_raw(prev=>{
@@ -151,12 +173,19 @@ export default function App(){
   };
   const showToast=(msg,type="green")=>{setToast({msg,type});setTimeout(()=>setToast(null),2600);};
 
+  const handleShopClick=()=>{
+    setTab("shop");
+    if(!shopFlash){
+      setShopFlash(true);
+      setTimeout(()=>setShopFlash(false),1000);
+    }
+  };
+
   const addRecord=rec=>{
     const earned=rec.type==="cook"?80:50;
     const newCount=S.records.length+1;
     const bagelBonus=newCount%5===0?1:0;
     const today=new Date().toDateString();
-    // update tag usage
     const newTagUsage={...S.tagUsage};
     rec.tags?.forEach(t=>{newTagUsage[t]=(newTagUsage[t]||0)+1;});
     setS(prev=>{
@@ -181,13 +210,14 @@ export default function App(){
     showToast(`🛍️ ${item.name} purchased!`,"gold");
   };
 
-  const doGacha=()=>{
+  const doGacha=(poolId)=>{
     if(S.bagels<GACHA_BAGEL_PRICE){showToast("Not enough Bagels 🥯","red");return;}
     setGachaAnim(true);setGachaRes(null);
     setTimeout(()=>{
       const r=Math.random();
-      const gPool=STORE_ITEMS.filter(i=>i.gacha_only);
-      const pool=r<0.05?gPool.filter(i=>i.rarity==="Unique"||i.rarity==="Legendary"):r<0.25?gPool.filter(i=>i.rarity==="Legendary"||i.rarity==="Epic"):r<0.6?gPool.filter(i=>i.rarity==="Epic"||i.rarity==="Rare"):gPool.filter(i=>i.rarity==="Rare");
+      const poolDef=GACHA_TABLE.find(p=>p.pool_id===poolId)||GACHA_TABLE[0];
+      const gPool=poolDef.item_ids.map(id=>STORE_ITEMS.find(i=>i.id===id)).filter(Boolean);
+      const pool=r<0.05?gPool.filter(i=>i.rarity==="Unique"||i.rarity==="Legendary"):r<0.25?gPool.filter(i=>i.rarity==="Legendary"||i.rarity==="Epic"):r<0.6?gPool.filter(i=>i.rarity==="Epic"||i.rarity==="Rare"):gPool.filter(i=>i.rarity==="Rare"||i.rarity==="Common");
       const safe=pool.length?pool:gPool;
       const item=safe[Math.floor(Math.random()*safe.length)];
       setGachaRes(item);
@@ -202,10 +232,15 @@ export default function App(){
   const shopLvLabel=lvLabels[Math.min(shopLv-1,6)];
 
   return(
-    <div style={{fontFamily:"'Nunito',sans-serif",background:`linear-gradient(160deg,${T.aquaPale} 0%,${T.white} 50%,${T.pinkPale} 100%)`,minHeight:"852px",maxWidth:393,margin:"0 auto",position:"relative"}}>
+    <div style={{fontFamily:"'Nunito',sans-serif",background:`linear-gradient(160deg,${T.aquaPale} 0%,${T.white} 50%,${T.pinkPale} 100%)`,height:"min(100dvh, 874px)",maxWidth:402,margin:"0 auto",position:"relative",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <style>{`
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
         ::-webkit-scrollbar{width:0;}
+        .content-scroll::-webkit-scrollbar{width:6px;}
+        .content-scroll::-webkit-scrollbar-track{background:rgba(61,216,232,.08);border-radius:6px;margin:6px 0;}
+        .content-scroll::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#3DD8E8,#FF6BAD);border-radius:6px;min-height:40px;}
+        .content-scroll::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#1BB8CC,#E0508F);}
+        .content-scroll{scrollbar-width:thin;scrollbar-color:#3DD8E8 rgba(61,216,232,.08);}
         input,textarea,select{font-family:'Nunito',sans-serif;background:${T.snow};border:2px solid ${T.aquaLight};border-radius:14px;padding:10px 14px;color:${T.textDark};font-size:14px;outline:none;width:100%;transition:border-color .2s;}
         input:focus,textarea:focus,select:focus{border-color:${T.aqua};}
         button{cursor:pointer;font-family:'Nunito',sans-serif;}
@@ -222,18 +257,28 @@ export default function App(){
         .rarity-Epic{animation:epicShimmer 2s ease-in-out infinite;}
         .rarity-Legendary{animation:legendTrail 2s ease-in-out infinite;}
         .rarity-Unique{animation:uniqueSparkle 1.4s ease-in-out infinite;}
+        @keyframes shopFlashAnim{0%{opacity:.7}100%{opacity:0}}
+        @keyframes bagelPulse{0%,100%{box-shadow:0 0 0 4px #FFE0A0,0 0 0 8px #E8935A55,0 6px 20px rgba(200,100,20,.5)}50%{box-shadow:0 0 0 6px #FFE0A0,0 0 0 11px #E8935A77,0 8px 28px rgba(200,100,20,.7)}}
       `}</style>
 
+      {/* BACKGROUND SPARKLES */}
       <div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:0,overflow:"hidden"}}>
         {[[8,12,1.1,0],[85,8,.7,.6],[70,38,.9,1.2],[15,55,.6,.3],[90,62,1,.9],[40,72,.5,1.5]].map(([l,t,sc,d],i)=>(
           <div key={i} style={{position:"absolute",left:`${l}%`,top:`${t}%`,fontSize:14*sc,animation:`sparkle 2.8s ${d}s ease-in-out infinite`,color:i%2===0?T.aqua:T.pink,opacity:.28}}>✦</div>
         ))}
       </div>
 
+      {/* SHOP FLASH OVERLAY */}
+      {shopFlash&&(
+        <div style={{position:"fixed",inset:0,zIndex:98,pointerEvents:"none",
+          background:"radial-gradient(ellipse at 50% 100%, rgba(255,200,60,.55) 0%, rgba(255,150,30,.25) 40%, rgba(255,200,60,0) 70%)",
+          animation:"shopFlashAnim 1s ease-out forwards"}}/>
+      )}
+
       {toast&&<div style={{position:"fixed",top:76,left:"50%",transform:"translateX(-50%)",background:toast.type==="gold"?`linear-gradient(135deg,${T.gold},#FF9B30)`:toast.type==="red"?"#FF6B8A":`linear-gradient(135deg,${T.aqua},${T.aquaDark})`,color:"#fff",padding:"10px 22px",borderRadius:28,fontWeight:800,fontSize:13,zIndex:9999,animation:"floatUp 2.5s forwards",whiteSpace:"nowrap",boxShadow:`0 6px 24px rgba(61,216,232,.3)`}}>{toast.msg}</div>}
 
       {/* HEADER */}
-      <div style={{position:"sticky",top:0,zIndex:100,padding:"7px 13px 6px",background:"rgba(255,255,255,.85)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${T.aquaLight}`}}>
+      <div style={{flexShrink:0,zIndex:100,padding:"7px 13px 6px",background:"rgba(255,255,255,.85)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${T.aquaLight}`}}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <button onClick={()=>setShowProfile(true)} style={{width:33,height:33,borderRadius:"50%",background:`linear-gradient(135deg,${T.aquaLight},${T.pinkLight})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,border:`2px solid ${T.white}`,boxShadow:`0 2px 8px ${T.aquaLight}`,flexShrink:0}}>
             {S.profile.avatarEmoji}
@@ -264,26 +309,61 @@ export default function App(){
       </div>
 
       {/* CONTENT */}
-      <div style={{paddingBottom:72,position:"relative",zIndex:1}}>
+      <div className="content-scroll" style={{flex:1,overflowY:"scroll",WebkitOverflowScrolling:"touch",paddingBottom:80,position:"relative",zIndex:1}}>
         {tab==="journal"    && <JournalTab    S={S} onAdd={()=>setModal("add")} onSel={r=>{setSelRec(r);setModal("record");}}/>}
         {tab==="fridge"     && <FridgeTab     S={S} setS={setS} showToast={showToast}/>}
         {tab==="shop"       && <ShopTab       S={S} onToggle={togglePlace} shopLv={shopLv} shopLvLabel={shopLvLabel} setS={setS} showToast={showToast}/>}
-        {tab==="store"      && <StoreTab      S={S} onGacha={()=>{setGachaRes(null);setModal("gacha");}} onBuy={buyItem}/>}
+        {tab==="store"      && <StoreTab      S={S} onGacha={(poolId)=>{setGachaRes(null);setModal({type:"gacha",poolId});}} onBuy={buyItem}/>}
         {tab==="collection" && <CollectionTab S={S}/>}
       </div>
 
       {/* BOTTOM NAV */}
-      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:393,background:"rgba(255,255,255,.93)",backdropFilter:"blur(20px)",borderTop:`1px solid ${T.aquaLight}`,display:"flex",justifyContent:"space-around",alignItems:"center",padding:"9px 0 15px",zIndex:100}}>
-        {[{id:"journal",icon:"📓"},{id:"fridge",icon:"🧊"},{id:"shop",icon:"🏪"},{id:"store",icon:"🛒"},{id:"collection",icon:"🏆"}].map(n=>(
-          <button key={n.id} onClick={()=>setTab(n.id)} style={{background:tab===n.id?T.aquaPale:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",width:56,height:46,borderRadius:18,transition:"all .18s",boxShadow:tab===n.id?`0 2px 12px rgba(61,216,232,.32)`:"none"}}>
-            <span style={{fontSize:23,filter:tab===n.id?"none":"grayscale(.4)",opacity:tab===n.id?1:.38}}>{n.icon}</span>
-            {tab===n.id&&<div style={{width:5,height:5,borderRadius:"50%",background:`linear-gradient(135deg,${T.aqua},${T.pink})`,marginTop:2}}/>}
-          </button>
-        ))}
+      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:402,background:"rgba(255,255,255,.93)",backdropFilter:"blur(20px)",borderTop:`1px solid ${T.aquaLight}`,display:"flex",justifyContent:"space-around",alignItems:"center",padding:"9px 0 15px",zIndex:100}}>
+        {[{id:"journal",icon:"/images/icon/journal.png",activeIcon: "/images/icon/journal_click.png"},
+        {id:"fridge",icon:"/images/icon/fridge.png",activeIcon: "/images/icon/fridge_click.png"},
+        {id:"shop",icon:"/images/icon/myshop.png",activeIcon: "/images/icon/myshop_click.png"},
+        {id:"store",icon:"/images/icon/store.png",activeIcon: "/images/icon/store_click.png"},
+        {id:"collection",icon:"/images/icon/achievement.png",activeIcon: "/images/icon/achievement_click.png"}].map(n=>{
+          if(n.id==="shop"){
+            return(
+              <button key="shop" onClick={handleShopClick}
+                style={{
+                  background:"radial-gradient(circle at 48% 38%, #FFD080 0%, #FF9A40 30%, #C06020 58%, #E8804A 78%, #FFD080 100%)",
+                  border:"3px solid #A04818",
+                  borderRadius:"50%",
+                  width:58,height:58,
+                  display:"flex",flexDirection:"column",
+                  alignItems:"center",justifyContent:"center",
+                  fontSize:26,
+                  animation:"bagelPulse 2.4s ease-in-out infinite",
+                  flexShrink:0,
+                  position:"relative",
+                  boxShadow:"inset 0 2px 4px rgba(255,220,120,.6), inset 0 -2px 4px rgba(140,60,10,.4)",
+                }}>
+                <img src={tab === n.id && n.activeIcon ? n.activeIcon : n.icon}
+                alt={n.id}
+                style={{
+                width: 56,
+                height: 56,
+                objectFit: "contain",
+                filter: "drop-shadow(0 1px 2px rgba(0,0,0,.3))"
+                }}
+                />
+                {tab==="shop"&&<div style={{position:"absolute",bottom:-6,width:5,height:5,borderRadius:"50%",background:`linear-gradient(135deg,${T.gold},${T.honey})`}}/>}
+              </button>
+            );
+          }
+          return(
+            <button key={n.id} onClick={()=>setTab(n.id)} style={{background:tab===n.id?T.aquaPale:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",width:56,height:46,borderRadius:18,transition:"all .18s",boxShadow:tab===n.id?`0 2px 12px rgba(61,216,232,.32)`:"none"}}>
+              <img src={tab===n.id&&n.activeIcon?n.activeIcon:n.icon} alt={n.id} style={{width:48,height:48,objectFit:"contain",filter:tab===n.id?"none":"grayscale(.4)",opacity:tab===n.id?1:.38}}/>
+              {tab===n.id&&<div style={{width:5,height:5,borderRadius:"50%",background:`linear-gradient(135deg,${T.aqua},${T.pink})`,marginTop:2}}/>}
+            </button>
+          );
+        })}
       </div>
 
       {modal==="add"    && <AddModal    S={S} onClose={()=>setModal(null)} onSubmit={addRecord}/>}
-      {modal==="gacha"  && <GachaModal  S={S} onClose={()=>setModal(null)} onGacha={doGacha} result={gachaRes} anim={gachaAnim} setResult={setGachaRes}/>}
+      {modal?.type==="gacha" && <GachaModal S={S} onClose={()=>setModal(null)} onGacha={()=>doGacha(modal.poolId)} result={gachaRes} anim={gachaAnim} setResult={setGachaRes}/>}
       {modal==="record" && selRec && <RecordModal record={selRec} onClose={()=>setModal(null)}/>}
       {showProfile && <ProfileModal S={S} setS={setS} onClose={()=>setShowProfile(false)} showToast={showToast}/>}
     </div>
@@ -304,6 +384,7 @@ function JournalTab({S,onAdd,onSel}){
       {recs.length===0?<EmptyJournal onAdd={onAdd}/>:(
         <div style={{padding:"0 14px"}}>{recs.map(r=><RecordCard key={r.id} record={r} onClick={()=>onSel(r)}/>)}</div>
       )}
+      <button onClick={onAdd} style={{position:"fixed",bottom:90,right:16,width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${T.pink},${T.purple})`,border:"none",fontSize:24,color:T.white,boxShadow:`0 6px 22px ${T.pinkLight}`,zIndex:50,display:"flex",alignItems:"center",justifyContent:"center"}}>✏️</button>
     </div>
   );
 }
@@ -407,7 +488,7 @@ function FridgeTab({S,setS,showToast}){
 function ShopTab({S,onToggle,shopLv,shopLvLabel,setS,showToast}){
   const [view,setView]=useState("furniture");
   const placed=STORE_ITEMS.filter(i=>S.placed.includes(i.id));
-  const [npcDialogue,setNpcDialogue]=useState(null); // {npcId, text}
+  const [npcDialogue,setNpcDialogue]=useState(null);
   const dialogueRef=useRef(null);
 
   const handleNpcClick=(npc)=>{
@@ -419,21 +500,17 @@ function ShopTab({S,onToggle,shopLv,shopLvLabel,setS,showToast}){
 
   return(
     <div style={{padding:"13px 14px 0",animation:"fadeSlide .3s ease"}}>
-      {/* Restaurant floor */}
       <div style={{background:`linear-gradient(160deg,${T.aquaPale},${T.white},${T.pinkPale})`,border:`2px solid ${T.aquaLight}`,borderRadius:22,overflow:"hidden",marginBottom:12,boxShadow:`0 6px 28px rgba(61,216,232,.1)`}}>
         <div style={{padding:"12px 15px 8px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div><div style={{fontWeight:900,fontSize:15,color:T.textDark}}>{S.shopName}</div><div style={{fontSize:11,fontWeight:700,color:T.aquaDark}}>⭐ Lv.{shopLv} · {shopLvLabel}</div></div>
           <div style={{background:`linear-gradient(135deg,${T.aquaLight},${T.pinkLight})`,borderRadius:13,padding:"4px 10px"}}><span style={{fontSize:11,fontWeight:800,color:T.textDark}}>Pop. {S.popularity}</span></div>
         </div>
-        {/* Floor canvas */}
         <div style={{background:"linear-gradient(180deg,rgba(232,251,253,.7),rgba(255,240,247,.5))",margin:"0 11px",borderRadius:16,height:150,position:"relative",border:`1.5px dashed ${T.aquaLight}`,overflow:"hidden"}}>
           <div style={{position:"absolute",inset:0,backgroundImage:`repeating-linear-gradient(0deg,transparent,transparent 38px,${T.aquaLight}40 38px,${T.aquaLight}40 39px),repeating-linear-gradient(90deg,transparent,transparent 38px,${T.aquaLight}40 38px,${T.aquaLight}40 39px)`,borderRadius:16,pointerEvents:"none"}}/>
           {placed.length>0&&<div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 50% 30%,${placed[0]?.item_col||T.aqua}14,transparent 60%)`,pointerEvents:"none"}}/>}
-          {/* Placed items (static grid) */}
           <div style={{display:"flex",gap:7,padding:"8px 10px",flexWrap:"wrap",position:"relative"}}>
             {placed.slice(0,8).map(item=><div key={item.id} style={{width:32,height:32,background:`${item.item_col}18`,border:`1px dashed ${item.item_col}55`,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17}}>{item.emoji}</div>)}
           </div>
-          {/* Walking NPCs */}
           {S.npcs.map((npc,i)=>(
             <div key={npc.id} onClick={()=>handleNpcClick(npc)} style={{position:"absolute",bottom:8,fontSize:22,animation:`npcWalk ${9+i*2.3}s linear infinite`,animationDelay:`${i*-3.1}s`,cursor:"pointer",userSelect:"none",zIndex:5}}>
               {npc.avatarEmoji}
@@ -445,8 +522,6 @@ function ShopTab({S,onToggle,shopLv,shopLvLabel,setS,showToast}){
         </div>
         <div style={{padding:"6px 14px 10px",display:"flex",gap:5,flexWrap:"wrap"}}>{placed.slice(0,5).map(i=><span key={i.id} style={{fontSize:10,fontWeight:700,color:i.item_col,background:`${i.item_col}18`,borderRadius:7,padding:"1px 6px"}}>{i.name}</span>)}</div>
       </div>
-
-      {/* Sub-tabs */}
       <div style={{display:"flex",gap:8,marginBottom:12}}>
         {[["furniture","🛋️ Furniture"],["people","👥 People"],["info","📊 Info"]].map(([id,label])=>(
           <button key={id} onClick={()=>setView(id)} style={{flex:1,background:view===id?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.white,border:view===id?"none":`2px solid ${T.aquaLight}`,borderRadius:14,padding:"8px 4px",color:view===id?T.white:T.textMid,fontSize:12,fontWeight:800,boxShadow:view===id?`0 4px 12px ${T.aquaLight}`:"none",transition:"all .18s"}}>{label}</button>
@@ -479,8 +554,7 @@ function PeopleView({S,setS,showToast}){
   const [npcForm,setNpcForm]=useState({name:"",avatarEmoji:"👦"});
   const addNpc=()=>{
     if(!npcForm.name.trim())return;
-    const defaultLines=NPC_LINES.slice(0,4);
-    setS(prev=>({...prev,npcs:[...prev.npcs,{id:Date.now(),name:npcForm.name,avatarEmoji:npcForm.avatarEmoji,dialogue:defaultLines}]}));
+    setS(prev=>({...prev,npcs:[...prev.npcs,{id:Date.now(),name:npcForm.name,avatarEmoji:npcForm.avatarEmoji,dialogue:NPC_LINES.slice(0,4)}]}));
     showToast(`${npcForm.avatarEmoji} ${npcForm.name} joined your restaurant!`,"gold");
     setAdding(false);setNpcForm({name:"",avatarEmoji:"👦"});
   };
@@ -554,22 +628,9 @@ function StoreTab({S,onGacha,onBuy}){
   );
 }
 
-function RarityItemCard({item,owned,action,actionLabel,disabled}){
-  const R=RARITY[item.rarity];
-  return(
-    <div className={owned?`rarity-${item.rarity}`:""} style={{background:owned?R.bg:T.snow,border:`2.5px solid ${owned?R.border:"#E0E0E0"}`,borderRadius:18,padding:"13px 10px",textAlign:"center",opacity:disabled?0.5:1,position:"relative",transition:"transform .15s"}}>
-      {item.gacha_only&&<div style={{position:"absolute",top:6,right:7,fontSize:10}}>🥯</div>}
-      <div style={{fontSize:30,marginBottom:5}}>{owned?item.emoji:"❓"}</div>
-      <div style={{fontWeight:800,fontSize:11,color:owned?T.textDark:T.textLight,marginBottom:2}}>{owned?item.name:"???"}</div>
-      <div style={{background:"rgba(255,255,255,.7)",borderRadius:8,display:"inline-block",padding:"1px 7px",color:R.col,fontSize:9,fontWeight:800,marginBottom:7,border:`1px solid ${R.border}44`}}>{item.rarity}</div>
-      {action&&<button onClick={action} disabled={disabled} style={{width:"100%",background:disabled?T.snow:`linear-gradient(135deg,${T.aqua},${T.pink})`,border:disabled?`1.5px solid ${T.aquaLight}`:"none",borderRadius:11,padding:"7px",color:disabled?T.textLight:T.white,fontSize:11,fontWeight:800}}>{actionLabel}</button>}
-    </div>
-  );
-}
-
 function ShopBuyView({S,onBuy}){
   const [cat,setCat]=useState("All");
-  // Read list_category from Store table
+  /* Read list_category from 03_Store table — fixed set: All, Furniture, Decoration, Wall & Floor */
   const cats=["All",...new Set(STORE_ITEMS.filter(i=>!i.gacha_only).map(i=>i.list_category))];
   const items=STORE_ITEMS.filter(i=>!i.gacha_only&&(cat==="All"||i.list_category===cat));
   return(<>
@@ -578,7 +639,6 @@ function ShopBuyView({S,onBuy}){
       <div><div style={{fontWeight:900,fontSize:14,color:"#A06000"}}>Honeypot Shop</div><div style={{fontWeight:700,fontSize:12,color:"#C08000"}}>Buy furniture with your Honeypot</div></div>
       <div style={{marginLeft:"auto",fontWeight:900,fontSize:16,color:"#A06000"}}>{S.currency} 🍯</div>
     </div>
-    {/* Category filter from list_category field */}
     <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:6,marginBottom:10}}>
       {cats.map(c=><button key={c} onClick={()=>setCat(c)} style={{background:cat===c?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.white,border:cat===c?"none":`2px solid ${T.aquaLight}`,borderRadius:13,padding:"5px 13px",color:cat===c?T.white:T.textMid,fontSize:11,fontWeight:700,whiteSpace:"nowrap",flexShrink:0,transition:"all .18s"}}>{c}</button>)}
     </div>
@@ -591,7 +651,6 @@ function ShopBuyView({S,onBuy}){
             <div style={{fontSize:30,marginBottom:5}}>{item.emoji}</div>
             <div style={{fontWeight:800,fontSize:11,color:T.textDark,marginBottom:2}}>{item.name}</div>
             <div style={{background:"rgba(255,255,255,.7)",borderRadius:7,display:"inline-block",padding:"1px 7px",color:RARITY[item.rarity].col,fontSize:9,fontWeight:800,marginBottom:3,border:`1px solid ${RARITY[item.rarity].border}44`}}>{item.rarity}</div>
-            {/* item_qty and price from Store table */}
             <div style={{display:"flex",justifyContent:"center",gap:6,marginBottom:7}}>
               <span style={{fontSize:9,color:T.textLight,fontWeight:700}}>Stock: {item.item_qty>50?"∞":item.item_qty}</span>
             </div>
@@ -605,32 +664,61 @@ function ShopBuyView({S,onBuy}){
   </>);
 }
 
+/* ── GACHA VIEW ──────────────────────────────────────────── */
 function GachaView({S,onGacha}){
-  const gachaItems=STORE_ITEMS.filter(i=>i.gacha_only);
+  const [poolIdx,setPoolIdx]=useState(0);
+  const [showRates,setShowRates]=useState(false);
+
+  const pool=GACHA_TABLE[poolIdx];
+  const gachaItems=pool.item_ids.map(id=>STORE_ITEMS.find(i=>i.id===id)).filter(Boolean);
+
   return(<>
-    <div style={{background:"linear-gradient(135deg,#FFF5EC,#FFE8D0)",border:"2px solid #FFD0A0",borderRadius:18,padding:"13px 16px",marginBottom:13}}>
-      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
-        <span style={{fontSize:26}}>🥯</span>
-        <div><div style={{fontWeight:900,fontSize:14,color:"#904000"}}>Bagel Tokens</div><div style={{fontWeight:700,fontSize:12,color:"#C06000"}}>Earn 1 🥯 for every 5 entries logged</div></div>
-        <div style={{marginLeft:"auto",fontWeight:900,fontSize:18,color:"#904000"}}>{S.bagels} 🥯</div>
+    {/* Pool switcher — reads from 08_Gacha table */}
+    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+      <button onClick={()=>setPoolIdx(i=>Math.max(0,i-1))} disabled={poolIdx===0}
+        style={{width:32,height:32,borderRadius:"50%",border:`2px solid ${T.aquaLight}`,background:poolIdx===0?T.snow:T.white,color:poolIdx===0?T.textLight:T.textDark,fontSize:16,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>‹</button>
+      <div style={{flex:1,textAlign:"center"}}>
+        <div style={{fontWeight:900,fontSize:14,color:T.textDark}}>{pool.pool_emoji} {pool.pool_name}</div>
+        <div style={{fontSize:10,color:T.textLight,fontWeight:700}}>{poolIdx+1} / {GACHA_TABLE.length}</div>
       </div>
-      <div style={{background:"rgba(255,255,255,.5)",borderRadius:11,padding:"7px 11px",fontSize:11,fontWeight:700,color:"#B07040"}}>🔒 Exclusive items — pull only, not available in Shop</div>
+      <button onClick={()=>setPoolIdx(i=>Math.min(GACHA_TABLE.length-1,i+1))} disabled={poolIdx===GACHA_TABLE.length-1}
+        style={{width:32,height:32,borderRadius:"50%",border:`2px solid ${T.aquaLight}`,background:poolIdx===GACHA_TABLE.length-1?T.snow:T.white,color:poolIdx===GACHA_TABLE.length-1?T.textLight:T.textDark,fontSize:16,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>›</button>
     </div>
-    <div style={{background:`linear-gradient(135deg,${T.purplePale},${T.pinkPale},${T.aquaPale})`,border:`2px solid ${T.pinkLight}`,borderRadius:22,padding:"18px",marginBottom:14,textAlign:"center",boxShadow:`0 6px 28px ${T.pinkLight}`}}>
-      <div style={{fontSize:50,marginBottom:6,animation:"drift 3s ease-in-out infinite"}}>🎲</div>
-      <div style={{fontWeight:900,fontSize:17,color:T.textDark,marginBottom:3}}>Rare Decoration Gacha</div>
-      <div style={{color:T.textMid,fontWeight:700,fontSize:12,marginBottom:10}}>{GACHA_BAGEL_PRICE} 🥯 per pull</div>
-      <div style={{display:"flex",gap:7,justifyContent:"center",marginBottom:14}}>
-        {[["Rare","55%",T.aquaDark,T.aquaPale],["Epic","30%",RARITY.Epic.col,"#FFFDE7"],["Legendary","10%",RARITY.Legendary.col,"#F3E5F5"],["Unique","5%",RARITY.Unique.col,"#FFF3E0"]].map(([r,p,col,bg])=>(
-          <div key={r} style={{background:bg,borderRadius:11,padding:"4px 10px",border:`1.5px solid ${col}55`}}><div style={{fontWeight:800,fontSize:9,color:col}}>{r}</div><div style={{fontWeight:900,fontSize:12,color:col}}>{p}</div></div>
-        ))}
+
+    {/* Bagel balance */}
+    <div style={{background:"linear-gradient(135deg,#FFF5EC,#FFE8D0)",border:"2px solid #FFD0A0",borderRadius:18,padding:"10px 16px",marginBottom:10,display:"flex",alignItems:"center",gap:10}}>
+      <span style={{fontSize:22}}>🥯</span>
+      <div><div style={{fontWeight:900,fontSize:13,color:"#904000"}}>Bagel Tokens</div><div style={{fontWeight:700,fontSize:11,color:"#C06000"}}>Earn 1 🥯 for every 5 entries logged</div></div>
+      <div style={{marginLeft:"auto",fontWeight:900,fontSize:18,color:"#904000"}}>{S.bagels} 🥯</div>
+    </div>
+
+    {/* Banner placeholder */}
+    <div style={{background:`linear-gradient(135deg,${T.purplePale},${T.pinkPale},${T.aquaPale})`,border:`2px dashed ${T.pinkLight}`,borderRadius:18,height:120,marginBottom:10,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",position:"relative"}}>
+      <div style={{textAlign:"center",pointerEvents:"none"}}>
+        <div style={{fontSize:28,marginBottom:4}}>🖼️</div>
+        <div style={{fontWeight:800,color:T.textLight,fontSize:12}}>Banner — {pool.pool_name}</div>
+        <div style={{fontWeight:600,color:T.textLight,fontSize:10,marginTop:2}}>Replace with pool artwork</div>
       </div>
-      <button onClick={onGacha} disabled={S.bagels<GACHA_BAGEL_PRICE} style={{width:"100%",background:S.bagels>=GACHA_BAGEL_PRICE?`linear-gradient(135deg,${T.pink},${T.purple})`:T.snow,border:S.bagels>=GACHA_BAGEL_PRICE?"none":`2px solid ${T.aquaLight}`,borderRadius:17,padding:"13px",color:S.bagels>=GACHA_BAGEL_PRICE?T.white:T.textLight,fontSize:15,fontWeight:900,boxShadow:S.bagels>=GACHA_BAGEL_PRICE?`0 5px 20px ${T.pinkLight}`:"none"}}>
+    </div>
+
+    {/* Pull card with ? button */}
+    <div style={{background:`linear-gradient(135deg,${T.purplePale},${T.pinkPale},${T.aquaPale})`,border:`2px solid ${T.pinkLight}`,borderRadius:22,padding:"16px 18px",marginBottom:14,textAlign:"center",boxShadow:`0 6px 28px ${T.pinkLight}`,position:"relative"}}>
+      {/* Probability ? button */}
+      <button onClick={()=>setShowRates(true)}
+        style={{position:"absolute",top:10,right:10,width:28,height:28,borderRadius:"50%",background:T.white,border:`2px solid ${T.pinkLight}`,color:T.textMid,fontSize:13,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 2px 8px ${T.pinkLight}`}}>?</button>
+
+      <div style={{fontSize:46,marginBottom:5,animation:"drift 3s ease-in-out infinite"}}>{pool.pool_emoji}</div>
+      <div style={{fontWeight:900,fontSize:16,color:T.textDark,marginBottom:2}}>{pool.pool_name}</div>
+      <div style={{color:T.textMid,fontWeight:700,fontSize:12,marginBottom:12}}>{GACHA_BAGEL_PRICE} 🥯 per pull</div>
+      <button onClick={()=>onGacha(pool.pool_id)} disabled={S.bagels<GACHA_BAGEL_PRICE}
+        style={{width:"100%",background:S.bagels>=GACHA_BAGEL_PRICE?`linear-gradient(135deg,${T.pink},${T.purple})`:T.snow,border:S.bagels>=GACHA_BAGEL_PRICE?"none":`2px solid ${T.aquaLight}`,borderRadius:17,padding:"13px",color:S.bagels>=GACHA_BAGEL_PRICE?T.white:T.textLight,fontSize:15,fontWeight:900,boxShadow:S.bagels>=GACHA_BAGEL_PRICE?`0 5px 20px ${T.pinkLight}`:"none"}}>
         🎲 Pull ({GACHA_BAGEL_PRICE} 🥯)
       </button>
-      {S.bagels<GACHA_BAGEL_PRICE&&<div style={{color:T.textLight,fontSize:12,fontWeight:700,marginTop:8}}>Log 5 entries to earn a Bagel token!</div>}
     </div>
+
+    {/* Exclusive Catalog */}
     <div style={{fontWeight:800,color:T.textMid,fontSize:12,marginBottom:8}}>✨ Exclusive Catalog ({gachaItems.filter(i=>S.owned.includes(i.id)).length}/{gachaItems.length})</div>
+    <div style={{background:"rgba(255,255,255,.6)",borderRadius:11,padding:"7px 11px",fontSize:11,fontWeight:700,color:"#B07040",marginBottom:10}}>🔒 Pull-only items — not available in Shop</div>
     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:7}}>
       {gachaItems.map(item=>{const owned=S.owned.includes(item.id);const R=RARITY[item.rarity];return(
         <div key={item.id} className={owned?`rarity-${item.rarity}`:""} style={{background:owned?R.bg:T.snow,border:`2px solid ${owned?R.border:"#E0E0E0"}`,borderRadius:13,padding:"9px 5px",textAlign:"center",opacity:owned?1:.5}}>
@@ -640,6 +728,25 @@ function GachaView({S,onGacha}){
         </div>
       );})}
     </div>
+
+    {/* Rates popover */}
+    {showRates&&(
+      <div onClick={()=>setShowRates(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.35)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+        <div onClick={e=>e.stopPropagation()} style={{background:T.white,borderRadius:22,padding:"20px 18px",width:"100%",maxWidth:300,boxShadow:`0 16px 50px rgba(0,0,0,.18)`,animation:"popIn .25s ease"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <div style={{fontWeight:900,fontSize:15,color:T.textDark}}>Drop Rates</div>
+            <button onClick={()=>setShowRates(false)} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:28,height:28,color:T.textMid,fontSize:14,fontWeight:800}}>×</button>
+          </div>
+          {[["Common","—",T.textLight,"#F5F5F5"],["Rare","55%",RARITY.Rare.col,RARITY.Rare.bg],["Epic","30%",RARITY.Epic.col,RARITY.Epic.bg],["Legendary","10%",RARITY.Legendary.col,RARITY.Legendary.bg],["Unique","5%",RARITY.Unique.col,RARITY.Unique.bg]].map(([r,p,col,bg])=>(
+            <div key={r} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:bg,border:`1.5px solid ${col}44`,borderRadius:11,padding:"8px 12px",marginBottom:7}}>
+              <span style={{fontWeight:800,fontSize:13,color:col}}>{r}</span>
+              <span style={{fontWeight:900,fontSize:14,color:col}}>{p}</span>
+            </div>
+          ))}
+          <div style={{color:T.textLight,fontSize:10,fontWeight:600,textAlign:"center",marginTop:8}}>Tap anywhere to close</div>
+        </div>
+      </div>
+    )}
   </>);
 }
 
@@ -647,6 +754,7 @@ function GachaView({S,onGacha}){
 function CollectionTab({S}){
   const [sub,setSub]=useState("achievements");
   const [collectionClicked,setCollectionClicked]=useState(false);
+  const [activeReward,setActiveReward]=useState(null);
   const done=S.achievements.filter(a=>typeof a==="object");
   const undone=ACHIEVEMENTS.filter(a=>!S.achievements.some(x=>x.id===a.id));
   return(
@@ -663,34 +771,70 @@ function CollectionTab({S}){
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}><span style={{fontWeight:800,color:T.textDark,fontSize:13}}>Progress</span><span style={{fontWeight:700,color:T.textMid,fontSize:13}}>{done.length}/{ACHIEVEMENTS.length}</span></div>
           <div style={{background:T.aquaPale,borderRadius:8,height:9,overflow:"hidden"}}><div style={{width:`${(done.length/ACHIEVEMENTS.length)*100}%`,background:`linear-gradient(90deg,${T.aqua},${T.pink})`,height:"100%",transition:"width .5s"}}/></div>
         </div>
+
         {done.length>0&&<>
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:12,marginBottom:7}}>✅ Unlocked ({done.length})</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:11}}>
-            {done.map(achObj=>{const a=ACHIEVEMENTS.find(x=>x.id===achObj.id);if(!a)return null;return(
-              <div key={achObj.id} style={{background:`linear-gradient(135deg,${T.aquaPale},${T.pinkPale})`,border:`2px solid ${T.aquaLight}`,borderRadius:17,padding:"13px 11px",position:"relative"}}>
-                {/* Date top right */}
-                <div style={{position:"absolute",top:7,right:9,fontSize:9,fontWeight:800,color:T.textLight}}>{fmtDate(achObj.unlockedAt)}</div>
-                <div style={{fontSize:26,marginBottom:5}}>{a.icon}</div>
-                <div style={{fontWeight:800,fontSize:13,color:T.textDark,marginBottom:2,paddingRight:50}}>{a.name}</div>
-                <div style={{fontSize:10,color:T.textMid,fontWeight:600,lineHeight:1.4}}>{a.desc}</div>
-                <div style={{marginTop:5,fontSize:10,fontWeight:800,color:T.aquaDark}}>✅ Unlocked</div>
-              </div>
-            );})}
+            {done.map(achObj=>{
+              const a=ACHIEVEMENTS.find(x=>x.id===achObj.id);if(!a)return null;
+              const R=RARITY[a.reward?.rarity||"Common"];
+              return(
+                <div key={achObj.id} style={{background:`linear-gradient(135deg,${T.aquaPale},${T.pinkPale})`,border:`2px solid ${T.aquaLight}`,borderRadius:17,padding:"13px 11px",position:"relative",paddingBottom:18}}>
+                  <div style={{position:"absolute",top:7,right:9,fontSize:9,fontWeight:800,color:T.textLight}}>{fmtDate(achObj.unlockedAt)}</div>
+                  <div style={{fontSize:26,marginBottom:5}}>{a.icon}</div>
+                  <div style={{fontWeight:800,fontSize:13,color:T.textDark,marginBottom:2,paddingRight:50}}>{a.name}</div>
+                  <div style={{fontSize:10,color:T.textMid,fontWeight:600,lineHeight:1.4,marginBottom:8}}>{a.desc}</div>
+                  <div style={{fontSize:10,fontWeight:800,color:T.aquaDark,marginBottom:6}}>✅ Unlocked</div>
+                  {/* Reward icon slot */}
+                  <button onClick={()=>setActiveReward({...a.reward,achName:a.name})}
+                    style={{position:"absolute",bottom:10,right:9,width:32,height:32,borderRadius:"50%",
+                      background:R.bg,border:`2px solid ${R.border}`,
+                      display:"flex",alignItems:"center",justifyContent:"center",
+                      fontSize:15,cursor:"pointer",boxShadow:`0 2px 8px ${R.border}44`}}>
+                    {a.reward?.icon||"🎁"}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </>}
+
         {undone.length>0&&<>
           <div style={{fontWeight:800,color:T.textLight,fontSize:12,marginBottom:7}}>🔒 Locked ({undone.length})</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-            {undone.map(a=>(
-              <div key={a.id} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:17,padding:"13px 11px",opacity:.52}}>
-                <div style={{fontSize:26,marginBottom:5,filter:"grayscale(1)"}}>{a.icon}</div>
-                <div style={{fontWeight:800,fontSize:13,color:T.textDark,marginBottom:2}}>{a.name}</div>
-                <div style={{fontSize:10,color:T.textMid,fontWeight:600,lineHeight:1.4}}>{a.desc}</div>
-              </div>
-            ))}
+            {undone.map(a=>{
+              const R=RARITY[a.reward?.rarity||"Common"];
+              return(
+                <div key={a.id} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:17,padding:"13px 11px",opacity:.52,position:"relative",paddingBottom:18}}>
+                  <div style={{fontSize:26,marginBottom:5,filter:"grayscale(1)"}}>{a.icon}</div>
+                  <div style={{fontWeight:800,fontSize:13,color:T.textDark,marginBottom:2}}>{a.name}</div>
+                  <div style={{fontSize:10,color:T.textMid,fontWeight:600,lineHeight:1.4,marginBottom:8}}>{a.desc}</div>
+                  {/* Reward icon slot — locked state */}
+                  <div style={{position:"absolute",bottom:10,right:9,width:32,height:32,borderRadius:"50%",
+                    background:"#EEEEEE",border:"2px solid #BDBDBD",
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                    fontSize:14,color:"#BDBDBD"}}>🎁</div>
+                </div>
+              );
+            })}
           </div>
         </>}
       </>}
+
+      {/* Reward popup */}
+      {activeReward&&(
+        <div onClick={()=>setActiveReward(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.35)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:T.white,borderRadius:24,padding:"26px 22px",minWidth:220,textAlign:"center",boxShadow:"0 20px 60px rgba(0,0,0,.2)",animation:"popIn .3s ease"}}>
+            <div style={{fontSize:54,marginBottom:8}}>{activeReward.icon}</div>
+            <div style={{fontWeight:900,fontSize:16,color:T.textDark,marginBottom:4}}>{activeReward.name}</div>
+            <div style={{display:"inline-block",background:RARITY[activeReward.rarity].bg,border:`2px solid ${RARITY[activeReward.rarity].border}`,borderRadius:10,padding:"3px 14px",color:RARITY[activeReward.rarity].col,fontWeight:800,fontSize:12,marginBottom:10}}>
+              {activeReward.rarity}
+            </div>
+            <div style={{color:T.textLight,fontSize:11,fontWeight:600,marginBottom:16}}>Achievement reward for unlocking this badge</div>
+            <button onClick={()=>setActiveReward(null)} style={{background:`linear-gradient(135deg,${T.aqua},${T.pink})`,border:"none",borderRadius:14,padding:"10px 28px",color:T.white,fontSize:13,fontWeight:900}}>Got it!</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -700,7 +844,7 @@ function ProfileModal({S,setS,onClose,showToast}){
   const [form,setForm]=useState({...S.profile});
   const setF=(k,v)=>setForm(f=>({...f,[k]:v}));
   const toggleFavTag=id=>setF("favTags",form.favTags.includes(id)?form.favTags.filter(t=>t!==id):form.favTags.length<5?[...form.favTags,id]:form.favTags);
-  const save=()=>{setS(p=>({...p,profile:form}));showToast("Profile saved!","gold");onClose();};
+  const savePro=()=>{setS(p=>({...p,profile:form}));showToast("Profile saved!","gold");onClose();};
   return(
     <div style={{position:"fixed",inset:0,background:"rgba(180,230,245,.5)",backdropFilter:"blur(18px)",zIndex:200,display:"flex",alignItems:"flex-end"}}>
       <div style={{background:T.white,borderRadius:"26px 26px 0 0",width:"100%",maxWidth:393,margin:"0 auto",padding:"20px 18px 36px",border:`2px solid ${T.aquaLight}`,borderBottom:"none",maxHeight:"88vh",overflowY:"auto",boxShadow:`0 -14px 44px rgba(61,216,232,.13)`}}>
@@ -708,7 +852,6 @@ function ProfileModal({S,setS,onClose,showToast}){
           <div style={{fontWeight:900,fontSize:17,color:T.textDark}}>⚙️ Profile & Settings</div>
           <button onClick={onClose} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:30,height:30,color:T.textMid,fontSize:16,fontWeight:800}}>×</button>
         </div>
-        {/* Avatar */}
         <div style={{textAlign:"center",marginBottom:16}}>
           <div style={{width:64,height:64,borderRadius:"50%",background:`linear-gradient(135deg,${T.aquaLight},${T.pinkLight})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 10px",border:`3px solid ${T.white}`,boxShadow:`0 4px 16px ${T.aquaLight}`}}>{form.avatarEmoji}</div>
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:7}}>Choose avatar</div>
@@ -716,20 +859,16 @@ function ProfileModal({S,setS,onClose,showToast}){
             {NPC_AVATARS.map(e=><button key={e} onClick={()=>setF("avatarEmoji",e)} style={{fontSize:22,background:form.avatarEmoji===e?T.aquaPale:T.snow,border:`2px solid ${form.avatarEmoji===e?T.aqua:T.aquaLight}`,borderRadius:10,padding:"4px 6px"}}>{e}</button>)}
           </div>
         </div>
-        {/* Nickname */}
         <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Nickname</div>
         <input value={form.nickname} onChange={e=>setF("nickname",e.target.value)} maxLength={20} placeholder="Your nickname" style={{marginBottom:12}}/>
-        {/* Bio */}
         <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Bio <span style={{color:T.textLight,fontWeight:600}}>({form.bio.length}/100)</span></div>
         <textarea value={form.bio} onChange={e=>setF("bio",e.target.value.slice(0,100))} rows={2} placeholder="Tell us about your food journey..." style={{marginBottom:12,resize:"none"}}/>
-        {/* Fav tags */}
         <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Favourite Cuisine Tags <span style={{color:T.textLight,fontWeight:600}}>({form.favTags.length}/5)</span></div>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:16}}>
           {CUISINE_TAGS.filter(t=>!t.dineoutonly).map(tag=>{const sel=form.favTags.includes(tag.id);return(
             <button key={tag.id} onClick={()=>toggleFavTag(tag.id)} style={{background:sel?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.snow,border:`2px solid ${sel?T.aqua:T.aquaLight}`,borderRadius:14,padding:"5px 11px",color:sel?T.white:T.textMid,fontSize:11,fontWeight:700,transition:"all .18s",opacity:!sel&&form.favTags.length>=5?.4:1}}>{tag.label}</button>
           );})}
         </div>
-        {/* System settings placeholder */}
         <div style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:16,padding:"12px 14px",marginBottom:16}}>
           <div style={{fontWeight:800,color:T.textDark,fontSize:13,marginBottom:8}}>⚙️ System Settings</div>
           {[["🌙 Dark Mode","Coming soon"],["🔔 Notifications","Coming soon"],["🌐 Language","English"],["🔒 Privacy","Public (default)"]].map(([k,v])=>(
@@ -739,15 +878,13 @@ function ProfileModal({S,setS,onClose,showToast}){
             </div>
           ))}
         </div>
-        <button onClick={save} style={{width:"100%",background:`linear-gradient(135deg,${T.aqua},${T.pink})`,border:"none",borderRadius:18,padding:"13px",color:T.white,fontSize:15,fontWeight:900,boxShadow:`0 5px 20px ${T.aquaLight}`}}>✅ Save Profile</button>
+        <button onClick={savePro} style={{width:"100%",background:`linear-gradient(135deg,${T.aqua},${T.pink})`,border:"none",borderRadius:18,padding:"13px",color:T.white,fontSize:15,fontWeight:900,boxShadow:`0 5px 20px ${T.aquaLight}`}}>✅ Save Profile</button>
       </div>
     </div>
   );
 }
 
 /* ── ADD MODAL ───────────────────────────────────────────── */
-const GACHA_BAGEL_PRICE=1;
-
 function AddModal({S,onClose,onSubmit}){
   const [type,setType]=useState("cook");
   const [step,setStep]=useState(0);
@@ -757,32 +894,25 @@ function AddModal({S,onClose,onSubmit}){
   const [showTagSearch,setShowTagSearch]=useState(false);
   const setF=(k,v)=>setForm(f=>({...f,[k]:v}));
 
-  // Tag logic: filter by dineoutonly, sort by usage, show top 10
   const availableTags=CUISINE_TAGS.filter(t=>type==="cook"?!t.dineoutonly:true);
   const sortedTags=[...availableTags].sort((a,b)=>(S.tagUsage[b.id]||0)-(S.tagUsage[a.id]||0));
   const suggestedTags=sortedTags.slice(0,10);
-
   const toggleTag=id=>setF("tags",form.tags.includes(id)?form.tags.filter(t=>t!==id):[...form.tags,id]);
 
   const handleAddrInput=val=>{
     setF("address",val);
     if(val.length<2){setAddrResults([]);return;}
-    const filtered=MOCK_ADDR.filter(a=>a.toLowerCase().includes(val.toLowerCase())).slice(0,5);
-    setAddrResults(filtered);
+    setAddrResults(MOCK_ADDR.filter(a=>a.toLowerCase().includes(val.toLowerCase())).slice(0,5));
   };
-
   const handlePhoto=(e)=>{
-    const files=Array.from(e.target.files);
-    files.forEach(file=>{
+    Array.from(e.target.files).forEach(file=>{
       const reader=new FileReader();
       reader.onload=ev=>setPhotos(prev=>[...prev,{id:Date.now()+Math.random(),preview:ev.target.result,name:file.name}].slice(0,9));
       reader.readAsDataURL(file);
     });
   };
   const removePhoto=id=>setPhotos(prev=>prev.filter(p=>p.id!==id));
-
   const toggleIngredient=id=>setF("ingredients",form.ingredients.includes(id)?form.ingredients.filter(i=>i!==id):[...form.ingredients,id]);
-
   const notesOk=form.notes.trim().length>=30;
   const step2Ok=form.title.trim()&&notesOk;
   const earnAmt=type==="cook"?80:50;
@@ -790,7 +920,6 @@ function AddModal({S,onClose,onSubmit}){
   return(
     <div style={{position:"fixed",inset:0,background:"rgba(180,230,245,.5)",backdropFilter:"blur(16px)",zIndex:200,display:"flex",alignItems:"flex-end"}}>
       <div style={{background:T.white,borderRadius:"26px 26px 0 0",width:"100%",maxWidth:393,margin:"0 auto",padding:"18px 17px 34px",border:`2px solid ${T.aquaLight}`,borderBottom:"none",maxHeight:"93vh",overflowY:"auto",boxShadow:`0 -14px 44px rgba(61,216,232,.13)`}}>
-        {/* Step bar */}
         <div style={{display:"flex",gap:6,marginBottom:15}}>
           {["Type","Photos","Details","Confirm"].map((s,i)=><div key={s} style={{flex:1,height:5,borderRadius:5,background:i<=step?`linear-gradient(90deg,${T.aqua},${T.pink})`:T.aquaPale}}/>)}
         </div>
@@ -799,7 +928,6 @@ function AddModal({S,onClose,onSubmit}){
           <button onClick={onClose} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:28,height:28,color:T.textMid,fontSize:15,fontWeight:800}}>×</button>
         </div>
 
-        {/* STEP 0: Type */}
         {step===0&&<>
           <div style={{display:"flex",gap:10,marginBottom:17}}>
             {[["cook","🍳","Home Cooked","+80 🍯"],["dine","🍽️","Dining Out","+50 🍯"]].map(([id,ic,label,reward])=>(
@@ -813,7 +941,6 @@ function AddModal({S,onClose,onSubmit}){
           <button onClick={()=>setStep(1)} style={{width:"100%",background:`linear-gradient(135deg,${T.pink},${T.purple})`,border:"none",borderRadius:17,padding:13,color:T.white,fontSize:15,fontWeight:900,boxShadow:`0 5px 20px ${T.pinkLight}`}}>Next →</button>
         </>}
 
-        {/* STEP 1: Photos (小紅書 style) */}
         {step===1&&<>
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:12,marginBottom:8}}>Add up to 9 photos 📸</div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6,marginBottom:14}}>
@@ -838,28 +965,19 @@ function AddModal({S,onClose,onSubmit}){
           </div>
         </>}
 
-        {/* STEP 2: Details */}
         {step===2&&<>
-          {/* Emoji */}
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Emoji</div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>{FOOD_EMOJIS.map(e=><button key={e} onClick={()=>setF("emoji",e)} style={{fontSize:21,background:form.emoji===e?T.aquaPale:T.snow,border:`2px solid ${form.emoji===e?T.aqua:T.aquaLight}`,borderRadius:10,padding:"4px 6px"}}>{e}</button>)}</div>
-
-          {/* Title (was "restaurant name") */}
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>Title *</div>
           <input value={form.title} onChange={e=>setF("title",e.target.value)} placeholder={type==="cook"?"e.g. Garlic Butter Pasta":"e.g. Dinner at Din Tai Fung"} style={{marginBottom:11}}/>
-
-          {/* Tags: 10 shown + + button */}
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Tags <span style={{color:T.textLight,fontWeight:600}}>(tap to select)</span></div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:11,alignItems:"center"}}>
             {suggestedTags.map(tag=>(
               <button key={tag.id} onClick={()=>toggleTag(tag.id)} style={{background:form.tags.includes(tag.id)?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.snow,border:`2px solid ${form.tags.includes(tag.id)?T.aqua:T.aquaLight}`,borderRadius:14,padding:"5px 10px",color:form.tags.includes(tag.id)?T.white:T.textMid,fontSize:11,fontWeight:700,transition:"all .18s"}}>{tag.label}</button>
             ))}
-            {/* + button to search more tags */}
             <button onClick={()=>setShowTagSearch(true)} style={{background:T.aquaPale,border:`2px solid ${T.aqua}`,borderRadius:14,padding:"5px 10px",color:T.aquaDark,fontSize:12,fontWeight:900}}>+</button>
           </div>
           {form.tags.length>0&&<div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:8}}>{form.tags.map(id=>{const t=CUISINE_TAGS.find(x=>x.id===id);return t?<span key={id} style={{background:`${T.aqua}22`,border:`1px solid ${T.aquaLight}`,borderRadius:8,padding:"2px 7px",color:T.aquaDark,fontSize:11,fontWeight:700}}>✓ {t.label}</span>:null;})}</div>}
-
-          {/* Cook-specific: ingredients (left) + servings (right) */}
           {type==="cook"&&<>
             <div style={{display:"flex",gap:10,marginBottom:11}}>
               <div style={{flex:1}}>
@@ -889,8 +1007,6 @@ function AddModal({S,onClose,onSubmit}){
               </div>
             </div>
           </>}
-
-          {/* Meal time */}
           <div style={{display:"flex",gap:10,marginBottom:11}}>
             <div style={{flex:1}}>
               <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>Meal Time</div>
@@ -901,8 +1017,6 @@ function AddModal({S,onClose,onSubmit}){
               <div style={{display:"flex",gap:1,paddingTop:8}}>{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setF("rating",n)} style={{background:"none",border:"none",fontSize:20,color:n<=form.rating?T.gold:T.aquaLight,padding:0}}>★</button>)}</div>
             </div>}
           </div>
-
-          {/* Address (Google Maps mock) */}
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>Location <span style={{color:T.textLight,fontWeight:600}}>(optional)</span></div>
           <div style={{position:"relative",marginBottom:addrResults.length?0:11}}>
             <input value={form.address} onChange={e=>handleAddrInput(e.target.value)} placeholder="Search address..." style={{paddingLeft:36}}/>
@@ -912,20 +1026,15 @@ function AddModal({S,onClose,onSubmit}){
           {addrResults.length>0&&<div style={{background:T.white,border:`2px solid ${T.aquaLight}`,borderRadius:14,marginBottom:11,overflow:"hidden",boxShadow:`0 4px 14px rgba(61,216,232,.12)`}}>
             {addrResults.map(a=><div key={a} onClick={()=>{setF("address",a);setAddrResults([]);}} style={{padding:"9px 14px",cursor:"pointer",fontSize:13,color:T.textDark,fontWeight:600,borderBottom:`1px solid ${T.aquaLight}`}}>📍 {a}</div>)}
           </div>}
-
-          {/* Notes (required, 30 char min) */}
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>
             Notes * <span style={{fontWeight:600,color:form.notes.length>=30?T.aquaDark:T.textLight}}>({form.notes.length}/30 min)</span>
           </div>
           <textarea value={form.notes} onChange={e=>setF("notes",e.target.value)} rows={3} placeholder="Share your experience, taste, recipe tips... (min. 30 characters)" style={{marginBottom:4,resize:"none",borderColor:form.notes.length>0&&!notesOk?"#FF6B8A":undefined}}/>
           {form.notes.length>0&&!notesOk&&<div style={{color:"#FF6B8A",fontSize:11,fontWeight:700,marginBottom:8}}>{30-form.notes.length} more characters needed</div>}
-
-          {/* Privacy (coming soon, disabled) */}
           <div style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:"10px 13px",marginBottom:14,display:"flex",justifyContent:"space-between",alignItems:"center",opacity:.7}}>
             <div><div style={{fontWeight:800,color:T.textDark,fontSize:12}}>🔒 Privacy</div><div style={{fontSize:11,color:T.textMid,fontWeight:600}}>Social features coming in future update</div></div>
             <div style={{background:T.aquaPale,borderRadius:10,padding:"3px 10px",fontWeight:800,fontSize:11,color:T.aquaDark}}>Public</div>
           </div>
-
           <div style={{display:"flex",gap:8}}>
             <button onClick={()=>setStep(1)} style={{flex:1,background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:11,color:T.textMid,fontSize:13,fontWeight:800}}>← Back</button>
             <button onClick={()=>{if(!step2Ok)return;setStep(3);}} style={{flex:2,background:step2Ok?`linear-gradient(135deg,${T.pink},${T.purple})`:T.snow,border:"none",borderRadius:14,padding:11,color:step2Ok?T.white:T.textLight,fontSize:13,fontWeight:900,boxShadow:step2Ok?`0 4px 14px ${T.pinkLight}`:"none"}}>
@@ -934,7 +1043,6 @@ function AddModal({S,onClose,onSubmit}){
           </div>
         </>}
 
-        {/* STEP 3: Confirm */}
         {step===3&&<div style={{textAlign:"center"}}>
           <div style={{background:`linear-gradient(135deg,${T.aquaPale},${T.pinkPale})`,border:`2px solid ${T.aquaLight}`,borderRadius:20,padding:"17px 14px",marginBottom:12}}>
             {photos.length>0&&<div style={{display:"flex",gap:5,justifyContent:"center",marginBottom:10}}>{photos.slice(0,3).map(p=><div key={p.id} style={{width:52,height:52,borderRadius:10,overflow:"hidden",border:`2px solid ${T.aquaLight}`}}><img src={p.preview} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/></div>)}</div>}
@@ -958,7 +1066,6 @@ function AddModal({S,onClose,onSubmit}){
           </div>
         </div>}
 
-        {/* Tag Search Overlay */}
         {showTagSearch&&<TagSearchModal type={type} selected={form.tags} onToggle={toggleTag} onClose={()=>setShowTagSearch(false)}/>}
       </div>
     </div>
@@ -994,7 +1101,7 @@ function GachaModal({S,onClose,onGacha,result,anim,setResult}){
     <div style={{position:"fixed",inset:0,background:"rgba(180,230,245,.52)",backdropFilter:"blur(18px)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
       <div style={{background:T.white,borderRadius:26,padding:"24px 20px",width:"100%",maxWidth:350,border:`2px solid ${T.aquaLight}`,boxShadow:`0 24px 60px rgba(61,216,232,.2)`,textAlign:"center"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-          <div style={{fontWeight:900,fontSize:16,color:T.textDark}}>🎲 Rare Gacha</div>
+          <div style={{fontWeight:900,fontSize:16,color:T.textDark}}>🎲 Gacha Pull</div>
           <button onClick={onClose} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:28,height:28,color:T.textMid,fontSize:14,fontWeight:800}}>×</button>
         </div>
         {!result&&!anim&&<>
@@ -1031,7 +1138,6 @@ function RecordModal({record,onClose}){
           <div style={{fontWeight:900,fontSize:14,color:T.textDark}}>Entry Details</div>
           <button onClick={onClose} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:28,height:28,color:T.textMid,fontSize:14,fontWeight:800}}>×</button>
         </div>
-        {/* Photos */}
         {record.photos?.length>0&&<div style={{display:"flex",gap:5,marginBottom:12,overflowX:"auto"}}>{record.photos.map((p,i)=><div key={i} style={{width:72,height:72,borderRadius:12,overflow:"hidden",flexShrink:0,border:`2px solid ${T.aquaLight}`}}><img src={p.preview} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/></div>)}</div>}
         <div style={{textAlign:"center",marginBottom:12}}>
           <div style={{fontSize:52,marginBottom:4}}>{record.emoji||"🍽️"}</div>
@@ -1040,7 +1146,7 @@ function RecordModal({record,onClose}){
           {record.rating>0&&<div style={{color:T.gold,fontSize:16,marginTop:2}}>{"★".repeat(record.rating)}{"☆".repeat(5-record.rating)}</div>}
         </div>
         <div style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:"9px 12px",marginBottom:9}}>
-          {[["Type",record.type==="cook"?"🍳 Home Cooked":"🍽️ Dining"],["Meal",`${mealIcon[record.mealTime]||""} ${record.mealTime||"—"}`],["Date",dateStr],["Earned",`+${record.earned} 🍯`]].map(([k,v])=>(
+          {[["Type",record.type==="cook"?"🍳 Home Cooked":"🍽️ Dining"],["Meal",`${mealIcon[record.mealTime]||""} ${record.mealTime||""}`],["Date",dateStr],["Earned",`+${record.earned} 🍯`]].map(([k,v])=>(
             <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:`1px solid ${T.aquaLight}`}}>
               <span style={{color:T.textLight,fontSize:12,fontWeight:700}}>{k}</span>
               <span style={{color:T.textDark,fontSize:12,fontWeight:700}}>{v}</span>
