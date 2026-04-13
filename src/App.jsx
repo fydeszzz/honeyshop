@@ -1,8 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { supabase } from "./lib/supabase";
 
-const _fl=document.createElement("link");_fl.rel="stylesheet";
-_fl.href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap";
-document.head.appendChild(_fl);
 
 /* ── TOKENS ─────────────────────────────────────────────── */
 const T={
@@ -109,7 +107,7 @@ const ACHIEVEMENTS=[
   {id:"cook_5",     icon:"👨‍🍳",name:"Home Chef",     desc:"Cook 5 homemade dishes",             reward:{icon:"👨‍🍳",name:"Chef Hat Pin",  rarity:"Rare"},     cond:s=>s.records.filter(r=>r.type==="cook").length>=5},
   {id:"cook_10",    icon:"🌟",name:"Kitchen Star",    desc:"Cook 10 homemade dishes",            reward:{icon:"⭐",name:"Gold Star Frame", rarity:"Epic"},     cond:s=>s.records.filter(r=>r.type==="cook").length>=10},
   {id:"dine_5",     icon:"🗺️",name:"Food Explorer",  desc:"Log 5 dining experiences",           reward:{icon:"🗺️",name:"Explorer Badge", rarity:"Rare"},     cond:s=>s.records.filter(r=>r.type==="dine").length>=5},
-  {id:"earn_500",   icon:"💰",name:"Honey Hoarder",   desc:"Accumulate 500 🍯",                  reward:{icon:"🍯",name:"Golden Pot",     rarity:"Epic"},     cond:s=>s.totalEarned>=500},
+  {id:"earn_500",   icon:"💰",name:"Honey Hoarder",   desc:"Accumulate 500 Honeypot",            reward:{icon:"/images/currency/honeypot.png",name:"Golden Pot",rarity:"Epic"},     cond:s=>s.totalEarned>=500},
   {id:"shop_1",     icon:"🛋️",name:"First Decor",    desc:"Own your first decoration",          reward:{icon:"🛋️",name:"Mini Sofa Tag", rarity:"Common"},   cond:s=>s.owned.length>=1},
   {id:"shop_5",     icon:"🏠",name:"Cozy Shop",       desc:"Own 5 decorations",                  reward:{icon:"🏠",name:"House Banner",   rarity:"Rare"},     cond:s=>s.owned.length>=5},
   {id:"streak_3",   icon:"🔥",name:"On a Roll",       desc:"Log food 3 days in a row",           reward:{icon:"🔥",name:"Flame Charm",    rarity:"Common"},   cond:s=>s.streak>=3},
@@ -117,7 +115,7 @@ const ACHIEVEMENTS=[
   {id:"log_10",     icon:"📔",name:"Getting Serious", desc:"Log 10 entries total",               reward:{icon:"📔",name:"Journal Cover",  rarity:"Rare"},     cond:s=>s.records.length>=10},
   {id:"rare_1",     icon:"💎",name:"Rare Collector",  desc:"Pull a Rare or higher item",         reward:{icon:"💎",name:"Diamond Frame",  rarity:"Epic"},     cond:s=>s.owned.some(id=>{const r=STORE_ITEMS.find(i=>i.id===id)?.rarity;return["Rare","Epic","Legendary","Unique"].includes(r);})},
   {id:"fridge_5",   icon:"🧊",name:"Stocked Up",      desc:"Add 5 ingredients to fridge",        reward:{icon:"🧊",name:"Ice Crystal",    rarity:"Common"},   cond:s=>s.fridge.length>=5},
-  {id:"first_bagel",icon:"🥯",name:"Bagel Baker",     desc:"Earn your first Bagel token",        reward:{icon:"🥯",name:"Bagel Token",    rarity:"Common"},   cond:s=>s.totalBagels>=1},
+  {id:"first_bagel",icon:"🥯",name:"Bagel Baker",     desc:"Earn your first Bagel token",        reward:{icon:"/images/currency/bagel.png",name:"Bagel Token",rarity:"Common"},   cond:s=>s.totalBagels>=1},
   {id:"npc_1",      icon:"👥",name:"Not Alone",       desc:"Add your first NPC character",       reward:{icon:"👥",name:"NPC Card",       rarity:"Rare"},     cond:s=>s.npcs.length>=1},
 ];
 
@@ -128,8 +126,6 @@ const MEAL_FILTERS=[
   {id:"Afternoon Tea",label:"☕ Tea"},
 ];
 const MEAL_TIMES=["Breakfast","Lunch","Dinner","Late Night","Afternoon Tea"];
-const FOOD_EMOJIS=["🍳","🍜","🍣","🍕","🥗","🍱","🥩","🍰","🍗","🥘","🍛","🥚","🍝","🦐","🍤","🥞","🫕","🥐"];
-const mealIcon={Breakfast:"☀️",Lunch:"🌤️",Dinner:"🌙","Late Night":"🌃","Afternoon Tea":"☕"};
 const NPC_AVATARS=["👦","👧","🧑","👱","🧔","🧓","👴","👵","🧙","🧚","🧜","🦸","🧑‍🍳","🧑‍🎨","🤖","👻","🐱","🐶","🐰","🦊","🐻","🐼","🦁","🐸"];
 const NPC_LINES=["This smells amazing!","Table for two?","I'll have the usual!","Best spot in town!","Is the special ready?","Cozy place!","Can I see the menu?","The food here is 💯","When does kitchen open?","Love this restaurant!"];
 const MOCK_ADDR=["123 Main St, San Francisco, CA","456 Melrose Ave, Los Angeles, CA","789 5th Ave, New York, NY","321 Michigan Ave, Chicago, IL"];
@@ -141,10 +137,10 @@ const defaults=()=>({
   records:[],owned:[],placed:[],fridge:[],npcs:[],
   shopName:"My Little Bistro",popularity:0,
   achievements:[],tagUsage:{},
-  profile:{nickname:"HoneyBagel",avatarEmoji:"👨‍🍳",bio:"",favTags:[]},
+  profile:{nickname:"HoneyBagel",avatarUrl:"",avatarBgHex:"#B8F3F9",bio:"",favTags:[]},
 });
 const fmtDate=iso=>{const d=new Date(iso);return`${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}-${d.getFullYear()}`;};
-function load(){try{const s=localStorage.getItem("fb_v5");const d=s?{...defaults(),...JSON.parse(s)}:defaults();if(d.achievements.length>0&&typeof d.achievements[0]==="string")d.achievements=d.achievements.map(id=>({id,unlockedAt:new Date().toISOString()}));return d;}catch{return defaults();}}
+function load(){try{const s=localStorage.getItem("fb_v5");const d=s?{...defaults(),...JSON.parse(s)}:defaults();if(d.achievements.length>0&&typeof d.achievements[0]==="string")d.achievements=d.achievements.map(id=>({id,unlockedAt:new Date().toISOString()}));if(d.profile&&d.profile.avatarEmoji&&!d.profile.avatarUrl){d.profile={...d.profile,avatarUrl:"",avatarBgHex:"#B8F3F9"};}return d;}catch{return defaults();}}
 function save(s){try{localStorage.setItem("fb_v5",JSON.stringify(s));}catch{}}
 
 /* ══════════════════════════════════════════════════════════
@@ -160,6 +156,38 @@ export default function App(){
   const [gachaAnim,setGachaAnim]=useState(false);
   const [showProfile,setShowProfile]=useState(false);
   const [shopFlash,setShopFlash]=useState(false);
+  const [avatars,setAvatars]=useState([]);
+  const [avatarBgcolors,setAvatarBgcolors]=useState([]);
+
+  useEffect(()=>{
+    if(!document.querySelector('link[href*="Nunito"]')){
+      const _fl=document.createElement("link");_fl.rel="stylesheet";
+      _fl.href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap";
+      document.head.appendChild(_fl);
+    }
+  },[]);
+
+  useEffect(()=>{
+    if(!supabase)return;
+    const db=supabase.schema("core");
+    Promise.all([
+      db.from("avatar").select("*"),
+      db.from("avatar_bgcolor").select("*"),
+    ]).then(([avRes,bgRes])=>{
+      console.log("[avatar]",avRes.data,"err:",avRes.error);
+      console.log("[avatar_bgcolor]",bgRes.data,"err:",bgRes.error);
+      if(avRes.data){
+        const active=avRes.data.filter(a=>a.avatar_active).map(a=>({
+          ...a,
+          avatar_url:a.avatar_url?.startsWith("/")?a.avatar_url:`/${a.avatar_url}`,
+        }));
+        if(active.length)setAvatars(active);
+      }
+      if(bgRes.data&&bgRes.data.length){
+        setAvatarBgcolors(bgRes.data.map(c=>({...c,avatar_bg_hex:c.avatar_bg_hex?.startsWith("#")?c.avatar_bg_hex:`#${c.avatar_bg_hex}`})));
+      }
+    }).catch(err=>console.warn("[avatars]",err.message));
+  },[]);
 
   const setS=upd=>{
     setS_raw(prev=>{
@@ -183,18 +211,20 @@ export default function App(){
 
   const addRecord=rec=>{
     const earned=rec.type==="cook"?80:50;
-    const newCount=S.records.length+1;
-    const bagelBonus=newCount%5===0?1:0;
     const today=new Date().toDateString();
-    const newTagUsage={...S.tagUsage};
-    rec.tags?.forEach(t=>{newTagUsage[t]=(newTagUsage[t]||0)+1;});
+    // Compute for toast (uses current rendered state; fine for single-user local app)
+    const bagelBonus=(S.records.length+1)%5===0?1:0;
     setS(prev=>{
+      const newCount=prev.records.length+1;
+      const bonus=newCount%5===0?1:0;
+      const newTagUsage={...prev.tagUsage};
+      rec.tags?.forEach(t=>{newTagUsage[t]=(newTagUsage[t]||0)+1;});
       const consec=prev.lastDate===new Date(Date.now()-86400000).toDateString();
       const newStreak=prev.lastDate===today?prev.streak:consec?prev.streak+1:1;
       return{...prev,
         records:[{...rec,id:Date.now(),earned,date:new Date().toISOString()},...prev.records],
         currency:prev.currency+earned,totalEarned:prev.totalEarned+earned,
-        bagels:prev.bagels+bagelBonus,totalBagels:prev.totalBagels+bagelBonus,
+        bagels:prev.bagels+bonus,totalBagels:prev.totalBagels+bonus,
         popularity:prev.popularity+(rec.type==="cook"?15:8),
         streak:newStreak,lastDate:today,tagUsage:newTagUsage,
       };
@@ -210,18 +240,30 @@ export default function App(){
     showToast(`🛍️ ${item.name} purchased!`,"gold");
   };
 
-  const doGacha=(poolId)=>{
-    if(S.bagels<GACHA_BAGEL_PRICE){showToast("Not enough Bagels 🥯","red");return;}
+  const doGacha=(poolId,count=1)=>{
+    const cost=GACHA_BAGEL_PRICE*count;
+    if(S.bagels<cost){showToast("Not enough Bagels 🥯","red");return;}
     setGachaAnim(true);setGachaRes(null);
     setTimeout(()=>{
-      const r=Math.random();
       const poolDef=GACHA_TABLE.find(p=>p.pool_id===poolId)||GACHA_TABLE[0];
       const gPool=poolDef.item_ids.map(id=>STORE_ITEMS.find(i=>i.id===id)).filter(Boolean);
-      const pool=r<0.05?gPool.filter(i=>i.rarity==="Unique"||i.rarity==="Legendary"):r<0.25?gPool.filter(i=>i.rarity==="Legendary"||i.rarity==="Epic"):r<0.6?gPool.filter(i=>i.rarity==="Epic"||i.rarity==="Rare"):gPool.filter(i=>i.rarity==="Rare"||i.rarity==="Common");
-      const safe=pool.length?pool:gPool;
-      const item=safe[Math.floor(Math.random()*safe.length)];
-      setGachaRes(item);
-      setS(prev=>({...prev,bagels:prev.bagels-GACHA_BAGEL_PRICE,owned:prev.owned.includes(item.id)?prev.owned:[...prev.owned,item.id]}));
+      const rarityOrder=["Common","Rare","Epic","Legendary","Unique"];
+      let bestItem=null;
+      const pulledIds=[];
+      for(let n=0;n<count;n++){
+        const r=Math.random();
+        const bucket=r<0.05?gPool.filter(i=>i.rarity==="Unique"||i.rarity==="Legendary"):r<0.25?gPool.filter(i=>i.rarity==="Legendary"||i.rarity==="Epic"):r<0.6?gPool.filter(i=>i.rarity==="Epic"||i.rarity==="Rare"):gPool.filter(i=>i.rarity==="Rare"||i.rarity==="Common");
+        const safe=bucket.length?bucket:gPool;
+        const item=safe[Math.floor(Math.random()*safe.length)];
+        if(!bestItem||rarityOrder.indexOf(item.rarity)>rarityOrder.indexOf(bestItem.rarity))bestItem=item;
+        pulledIds.push(item.id);
+      }
+      setGachaRes(count>1?{...bestItem,pullCount:count}:bestItem);
+      setS(prev=>{
+        const newOwned=[...prev.owned];
+        pulledIds.forEach(id=>{if(!newOwned.includes(id))newOwned.push(id);});
+        return {...prev,bagels:prev.bagels-cost,owned:newOwned};
+      });
       setGachaAnim(false);
     },1300);
   };
@@ -232,7 +274,7 @@ export default function App(){
   const shopLvLabel=lvLabels[Math.min(shopLv-1,6)];
 
   return(
-    <div style={{fontFamily:"'Nunito',sans-serif",background:`linear-gradient(160deg,${T.aquaPale} 0%,${T.white} 50%,${T.pinkPale} 100%)`,height:"min(100dvh, 874px)",maxWidth:402,margin:"0 auto",position:"relative",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+    <div style={{fontFamily:"'Nunito',sans-serif",background:`linear-gradient(160deg,${T.aquaPale} 0%,${T.white} 50%,${T.pinkPale} 100%)`,height:"min(100dvh, 852px)",maxWidth:393,margin:"0 auto",position:"relative",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <style>{`
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
         ::-webkit-scrollbar{width:0;}
@@ -278,33 +320,35 @@ export default function App(){
       {toast&&<div style={{position:"fixed",top:76,left:"50%",transform:"translateX(-50%)",background:toast.type==="gold"?`linear-gradient(135deg,${T.gold},#FF9B30)`:toast.type==="red"?"#FF6B8A":`linear-gradient(135deg,${T.aqua},${T.aquaDark})`,color:"#fff",padding:"10px 22px",borderRadius:28,fontWeight:800,fontSize:13,zIndex:9999,animation:"floatUp 2.5s forwards",whiteSpace:"nowrap",boxShadow:`0 6px 24px rgba(61,216,232,.3)`}}>{toast.msg}</div>}
 
       {/* HEADER */}
-      <div style={{flexShrink:0,zIndex:100,padding:"7px 13px 6px",background:"rgba(255,255,255,.85)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${T.aquaLight}`}}>
-        <div style={{display:"flex",alignItems:"center",gap:8}}>
-          <button onClick={()=>setShowProfile(true)} style={{width:33,height:33,borderRadius:"50%",background:`linear-gradient(135deg,${T.aquaLight},${T.pinkLight})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,border:`2px solid ${T.white}`,boxShadow:`0 2px 8px ${T.aquaLight}`,flexShrink:0}}>
-            {S.profile.avatarEmoji}
+      <div style={{flexShrink:0,zIndex:100,padding:"10px 13px 8px",background:"rgba(255,255,255,.85)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${T.aquaLight}`}}>
+        {/* Row 1: Avatar + Name + Currencies */}
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:7}}>
+          <button onClick={()=>setShowProfile(true)} style={{width:60,height:60,borderRadius:"50%",background:S.profile.avatarBgHex||`linear-gradient(135deg,${T.aquaLight},${T.pinkLight})`,display:"flex",alignItems:"center",justifyContent:"center",border:`2px solid ${T.white}`,boxShadow:`0 2px 8px ${T.aquaLight}`,flexShrink:0,overflow:"hidden",padding:0}}>
+            {S.profile.avatarUrl?<img src={S.profile.avatarUrl} alt="avatar" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:17}}>👤</span>}
           </button>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontWeight:900,fontSize:13,color:T.textDark,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.1}}>{S.profile.nickname}</div>
-            <div style={{fontSize:9,color:T.textMid,fontWeight:700}}>Lv.{shopLv} · {shopLvLabel}</div>
-          </div>
-          <div style={{flex:1.3,minWidth:0}}>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-              <span style={{fontSize:8,color:T.textLight,fontWeight:800}}>XP</span>
-              <span style={{fontSize:8,color:T.textLight,fontWeight:800}}>{S.popularity%100}/100</span>
-            </div>
-            <div style={{background:T.aquaPale,borderRadius:6,height:6,overflow:"hidden"}}>
-              <div style={{width:`${S.popularity%100}%`,background:`linear-gradient(90deg,${T.aqua},${T.pink})`,height:"100%",transition:"width .5s"}}/>
-            </div>
+            <div style={{fontWeight:900,fontSize:16,color:T.textDark,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",lineHeight:1.1}}>{S.profile.nickname}</div>
+            <div style={{fontSize:13,color:T.textMid,fontWeight:700}}>Lv.{shopLv} · {shopLvLabel}</div>
           </div>
           <div style={{background:`linear-gradient(135deg,${T.goldLight},#FFD060)`,borderRadius:18,padding:"4px 9px",display:"flex",alignItems:"center",gap:3,boxShadow:"0 2px 6px rgba(255,184,48,.28)",flexShrink:0}}>
-            <span style={{fontSize:11}}>🍯</span><span style={{fontWeight:900,fontSize:12,color:"#A06000"}}>{S.currency}</span>
+            <img src="/images/currency/honeypot.png" style={{width:22,height:22,objectFit:"contain"}}/><span style={{fontWeight:900,fontSize:13,color:"#A06000"}}>{S.currency}</span>
           </div>
           <div style={{background:"linear-gradient(135deg,#FFE8D0,#FFCFA0)",borderRadius:18,padding:"4px 9px",display:"flex",alignItems:"center",gap:3,flexShrink:0}}>
-            <span style={{fontSize:11}}>🥯</span><span style={{fontWeight:900,fontSize:12,color:"#904000"}}>{S.bagels}</span>
+            <img src="/images/currency/bagel.png" style={{width:22,height:22,objectFit:"contain"}}/><span style={{fontWeight:900,fontSize:13,color:"#904000"}}>{S.bagels}</span>
           </div>
           {S.streak>0&&<div style={{background:"linear-gradient(135deg,#FFE8D0,#FFD0A0)",borderRadius:13,padding:"3px 7px",display:"flex",alignItems:"center",gap:2,flexShrink:0}}>
             <span style={{fontSize:10}}>🔥</span><span style={{fontSize:10,fontWeight:900,color:"#C05000"}}>{S.streak}</span>
           </div>}
+        </div>
+        {/* Row 2: XP bar — full width */}
+        <div>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+            <span style={{fontSize:12,color:T.textLight,fontWeight:800}}>XP</span>
+            <span style={{fontSize:12,color:T.textLight,fontWeight:800}}>{S.popularity%100}/100</span>
+          </div>
+          <div style={{background:T.aquaPale,borderRadius:6,height:10,overflow:"hidden"}}>
+            <div style={{width:`${S.popularity%100}%`,background:`linear-gradient(90deg,${T.aqua},${T.pink})`,height:"100%",transition:"width .5s"}}/>
+          </div>
         </div>
       </div>
 
@@ -313,12 +357,12 @@ export default function App(){
         {tab==="journal"    && <JournalTab    S={S} onAdd={()=>setModal("add")} onSel={r=>{setSelRec(r);setModal("record");}}/>}
         {tab==="fridge"     && <FridgeTab     S={S} setS={setS} showToast={showToast}/>}
         {tab==="shop"       && <ShopTab       S={S} onToggle={togglePlace} shopLv={shopLv} shopLvLabel={shopLvLabel} setS={setS} showToast={showToast}/>}
-        {tab==="store"      && <StoreTab      S={S} onGacha={(poolId)=>{setGachaRes(null);setModal({type:"gacha",poolId});}} onBuy={buyItem}/>}
+        {tab==="store"      && <StoreTab      S={S} onGacha={(poolId,count=1)=>{setGachaRes(null);setModal({type:"gacha",poolId,count});}} onBuy={buyItem}/>}
         {tab==="collection" && <CollectionTab S={S}/>}
       </div>
 
       {/* BOTTOM NAV */}
-      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:402,background:"rgba(255,255,255,.93)",backdropFilter:"blur(20px)",borderTop:`1px solid ${T.aquaLight}`,display:"flex",justifyContent:"space-around",alignItems:"center",padding:"9px 0 15px",zIndex:100}}>
+      <div style={{position:"absolute",bottom:0,left:0,right:0,width:"100%",background:"rgba(255,255,255,.93)",backdropFilter:"blur(20px)",borderTop:`1px solid ${T.aquaLight}`,display:"flex",justifyContent:"space-around",alignItems:"center",padding:"9px 0 14px",zIndex:100}}>
         {[{id:"journal",icon:"/images/icon/journal.png",activeIcon: "/images/icon/journal_click.png"},
         {id:"fridge",icon:"/images/icon/fridge.png",activeIcon: "/images/icon/fridge_click.png"},
         {id:"shop",icon:"/images/icon/myshop.png",activeIcon: "/images/icon/myshop_click.png"},
@@ -363,45 +407,42 @@ export default function App(){
       </div>
 
       {modal==="add"    && <AddModal    S={S} onClose={()=>setModal(null)} onSubmit={addRecord}/>}
-      {modal?.type==="gacha" && <GachaModal S={S} onClose={()=>setModal(null)} onGacha={()=>doGacha(modal.poolId)} result={gachaRes} anim={gachaAnim} setResult={setGachaRes}/>}
+      {modal?.type==="gacha" && <GachaModal S={S} onClose={()=>setModal(null)} onGacha={()=>doGacha(modal.poolId,modal.count||1)} result={gachaRes} anim={gachaAnim} setResult={setGachaRes} pullCount={modal.count||1}/>}
       {modal==="record" && selRec && <RecordModal record={selRec} onClose={()=>setModal(null)}/>}
-      {showProfile && <ProfileModal S={S} setS={setS} onClose={()=>setShowProfile(false)} showToast={showToast}/>}
+      {showProfile && <ProfileModal S={S} setS={setS} onClose={()=>setShowProfile(false)} showToast={showToast} avatars={avatars} bgcolors={avatarBgcolors}/>}
     </div>
   );
 }
 
 /* ── JOURNAL ─────────────────────────────────────────────── */
 function JournalTab({S,onAdd,onSel}){
-  const [filter,setFilter]=useState("all");
-  const recs=S.records.filter(r=>filter==="all"||r.type===filter||r.mealTime===filter);
   return(
-    <div style={{animation:"fadeSlide .3s ease"}}>
-      <div style={{display:"flex",gap:7,padding:"12px 14px 9px",overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
-        {MEAL_FILTERS.map(({id,label})=>(
-          <button key={id} onClick={()=>setFilter(id)} style={{background:filter===id?`linear-gradient(135deg,${T.pink},${T.purple})`:T.white,border:filter===id?"none":`2px solid ${T.aquaLight}`,borderRadius:20,padding:"6px 14px",whiteSpace:"nowrap",color:filter===id?T.white:T.textMid,fontSize:12,fontWeight:700,boxShadow:filter===id?`0 4px 12px ${T.pinkLight}`:"none",flexShrink:0,transition:"all .18s"}}>{label}</button>
-        ))}
-      </div>
-      {recs.length===0?<EmptyJournal onAdd={onAdd}/>:(
-        <div style={{padding:"0 14px"}}>{recs.map(r=><RecordCard key={r.id} record={r} onClick={()=>onSel(r)}/>)}</div>
+    <div style={{animation:"fadeSlide .3s ease",paddingTop:10}}>
+      {S.records.length===0?<EmptyJournal onAdd={onAdd}/>:(
+        <div style={{padding:"0 14px"}}>{S.records.map(r=><RecordCard key={r.id} record={r} onClick={()=>onSel(r)}/>)}</div>
       )}
-      <button onClick={onAdd} style={{position:"fixed",bottom:90,right:16,width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${T.pink},${T.purple})`,border:"none",fontSize:24,color:T.white,boxShadow:`0 6px 22px ${T.pinkLight}`,zIndex:50,display:"flex",alignItems:"center",justifyContent:"center"}}>✏️</button>
+      <button onClick={onAdd} style={{position:"absolute",bottom:90,right:16,width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${T.aqua},${T.aquaDark})`,border:"none",boxShadow:`0 6px 22px ${T.aquaLight}`,zIndex:50,display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <img src="/images/icon/spatula.png" style={{width:30,height:30,objectFit:"contain",filter:"brightness(0) invert(1)"}}/>
+      </button>
     </div>
   );
 }
 function EmptyJournal({onAdd}){
   return(
     <div style={{padding:"28px 22px",textAlign:"center",animation:"fadeSlide .4s ease"}}>
-      <div style={{animation:"drift 3s ease-in-out infinite",fontSize:66,marginBottom:10}}>🍽️</div>
+      <img src="/images/icon/plate.png" style={{width:88,height:88,objectFit:"contain",animation:"drift 3s ease-in-out infinite",display:"block",margin:"0 auto 10px"}}/>
       <div style={{fontWeight:900,fontSize:21,color:T.textDark,marginBottom:8}}>Your journal is empty!</div>
       <div style={{color:T.textMid,fontSize:14,fontWeight:600,lineHeight:1.65,marginBottom:18}}>Log your first dish or dining experience<br/>and start your food adventure ✦</div>
       <div style={{display:"inline-flex",alignItems:"center",gap:6,background:`linear-gradient(135deg,${T.goldLight},#FFE880)`,borderRadius:22,padding:"8px 20px",marginBottom:20,boxShadow:"0 4px 14px rgba(255,184,48,.22)"}}>
-        <span>🍯</span><span style={{fontWeight:800,fontSize:13,color:"#A06000"}}>New entry earns +50 Honeypot</span>
+        <img src="/images/currency/honeypot.png" style={{width:20,height:20,objectFit:"contain"}}/><span style={{fontWeight:800,fontSize:13,color:"#A06000"}}>New entry earns +50 Honeypot</span>
       </div><br/>
-      <button onClick={onAdd} style={{background:`linear-gradient(135deg,${T.pink},${T.purple})`,border:"none",borderRadius:24,padding:"13px 34px",color:T.white,fontSize:15,fontWeight:900,boxShadow:`0 6px 22px ${T.pinkLight}`}}>✏️  Add First Entry</button>
-      <div style={{color:T.textLight,fontSize:12,fontWeight:600,marginTop:13}}>✦ Log 5 entries to earn a Bagel 🥯 ✦</div>
+      <button onClick={onAdd} style={{background:`linear-gradient(135deg,${T.pink},${T.purple})`,border:"none",borderRadius:25,padding:"5px 40px",color:T.white,fontSize:16,fontWeight:900,boxShadow:`0 6px 22px ${T.pinkLight}`,display:"inline-flex",alignItems:"center",gap:10}}>
+        <img src="/images/icon/spatula_click.png" style={{width:48,height:48,objectFit:"contain"}}/>
+        Add First Entry
+      </button>
     </div>
-  );
-}
+  )};
+
 function RecordCard({record,onClick}){
   const isCook=record.type==="cook";
   return(
@@ -409,8 +450,8 @@ function RecordCard({record,onClick}){
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
         <div style={{flex:1}}>
           <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:5}}>
-            <span style={{background:isCook?`${T.aqua}22`:`${T.pink}22`,border:`1px solid ${isCook?T.aquaLight:T.pinkLight}`,borderRadius:10,padding:"2px 8px",color:isCook?T.aquaDark:T.pinkDark,fontSize:11,fontWeight:700}}>{isCook?"🍳 Home":"🍽️ Dining"}</span>
-            <span style={{color:T.textLight,fontSize:11,fontWeight:600}}>{mealIcon[record.mealTime]} {record.mealTime}</span>
+            <span style={{background:isCook?`${T.aqua}22`:`${T.pink}22`,border:`1px solid ${isCook?T.aquaLight:T.pinkLight}`,borderRadius:10,padding:"2px 8px",color:isCook?T.aquaDark:T.pinkDark,fontSize:11,fontWeight:700}}>{isCook?"🍳 Home":<span style={{display:"inline-flex",alignItems:"center",gap:3}}><img src="/images/icon/plate.png" style={{width:13,height:13,objectFit:"contain",verticalAlign:"middle"}}/>Dining</span>}</span>
+            <span style={{color:T.textLight,fontSize:11,fontWeight:600}}>{mealIcon[record.mealTime?.split(" · ")[0]]||""} {record.mealTime}</span>
           </div>
           <div style={{fontWeight:800,fontSize:15,color:T.textDark,marginBottom:3}}>{record.title}</div>
           {record.address&&<div style={{color:T.textMid,fontSize:12,fontWeight:600,marginBottom:2}}>📍 {record.address}</div>}
@@ -419,8 +460,8 @@ function RecordCard({record,onClick}){
           {record.tags?.length>0&&<div style={{display:"flex",gap:4,flexWrap:"wrap",marginTop:6}}>{record.tags.slice(0,4).map(t=><span key={t} style={{background:T.snow,border:`1px solid ${T.aquaLight}`,borderRadius:8,padding:"2px 6px",color:T.textMid,fontSize:10,fontWeight:600}}>#{t}</span>)}</div>}
         </div>
         <div style={{textAlign:"center",marginLeft:10,minWidth:48,flexShrink:0}}>
-          <div style={{fontSize:32,marginBottom:3}}>{record.emoji||"🍽️"}</div>
-          <div style={{background:`linear-gradient(135deg,${T.goldLight},#FFE060)`,borderRadius:10,padding:"2px 6px",fontWeight:800,fontSize:11,color:"#A06000"}}>+{record.earned}🍯</div>
+          <div style={{fontSize:32,marginBottom:3,width:38,height:38,display:"flex",alignItems:"center",justifyContent:"center"}}>{record.emoji?<span>{record.emoji}</span>:<img src="/images/icon/plate.png" style={{width:36,height:36,objectFit:"contain"}}/>}</div>
+          <div style={{background:`linear-gradient(135deg,${T.goldLight},#FFE060)`,borderRadius:10,padding:"2px 6px",fontWeight:800,fontSize:11,color:"#A06000",display:"flex",alignItems:"center",gap:2}}>+{record.earned}<img src="/images/currency/honeypot.png" style={{width:13,height:13,objectFit:"contain"}}/></div>
         </div>
       </div>
     </div>
@@ -490,6 +531,8 @@ function ShopTab({S,onToggle,shopLv,shopLvLabel,setS,showToast}){
   const placed=STORE_ITEMS.filter(i=>S.placed.includes(i.id));
   const [npcDialogue,setNpcDialogue]=useState(null);
   const dialogueRef=useRef(null);
+
+  useEffect(()=>()=>clearTimeout(dialogueRef.current),[]);
 
   const handleNpcClick=(npc)=>{
     const text=NPC_LINES[Math.floor(Math.random()*NPC_LINES.length)];
@@ -603,9 +646,9 @@ function ShopInfoView({S,setS,showToast}){
       {editing?<div style={{display:"flex",gap:8}}><input value={name} onChange={e=>setName(e.target.value)} maxLength={20}/><button onClick={()=>{setS(p=>({...p,shopName:name}));setEditing(false);showToast("Name updated!");}} style={{background:`linear-gradient(135deg,${T.aqua},${T.pink})`,border:"none",borderRadius:11,padding:"0 14px",color:T.white,fontSize:12,fontWeight:800,whiteSpace:"nowrap"}}>Save</button></div>:<div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><span style={{fontWeight:900,fontSize:15,color:T.textDark}}>{S.shopName}</span><button onClick={()=>setEditing(true)} style={{background:T.aquaPale,border:`1.5px solid ${T.aquaLight}`,borderRadius:10,padding:"4px 11px",color:T.aquaDark,fontSize:11,fontWeight:800}}>Rename</button></div>}
     </div>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-      {[["📓","Logs",S.records.length,T.aquaDark],["🍳","Home",S.records.filter(r=>r.type==="cook").length,T.pink],["🍽️","Dining",S.records.filter(r=>r.type==="dine").length,T.purple],["🎒","Owned",S.owned.length,T.gold],["🍯","Earned",S.totalEarned,T.honey],["⭐","Pop.",S.popularity,T.aquaDark]].map(([ic,label,val,col])=>(
+      {[["📓","Logs",S.records.length,T.aquaDark],["🍳","Home",S.records.filter(r=>r.type==="cook").length,T.pink],["🍽️","Dining",S.records.filter(r=>r.type==="dine").length,T.purple],["🎒","Owned",S.owned.length,T.gold],[null,"Earned",S.totalEarned,T.honey],["⭐","Pop.",S.popularity,T.aquaDark]].map(([ic,label,val,col])=>(
         <div key={label} style={{background:T.white,border:`2px solid ${T.aquaLight}`,borderRadius:15,padding:"11px 12px"}}>
-          <div style={{fontSize:19,marginBottom:3}}>{ic}</div><div style={{fontWeight:900,fontSize:18,color:col}}>{val}</div><div style={{color:T.textLight,fontSize:10,fontWeight:700}}>{label}</div>
+          <div style={{fontSize:19,marginBottom:3}}>{ic?ic:<img src="/images/currency/honeypot.png" style={{width:19,height:19,objectFit:"contain"}}/>}</div><div style={{fontWeight:900,fontSize:18,color:col}}>{val}</div><div style={{color:T.textLight,fontSize:10,fontWeight:700}}>{label}</div>
         </div>
       ))}
     </div>
@@ -616,14 +659,14 @@ function ShopInfoView({S,setS,showToast}){
 function StoreTab({S,onGacha,onBuy}){
   const [view,setView]=useState("shop");
   return(
-    <div style={{padding:"13px 14px",animation:"fadeSlide .3s ease"}}>
-      <div style={{display:"flex",gap:8,marginBottom:13}}>
-        {[["shop","🛍️ Shop"],["gacha","🥯 Gacha"]].map(([id,label])=>(
-          <button key={id} onClick={()=>setView(id)} style={{flex:1,background:view===id?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.white,border:view===id?"none":`2px solid ${T.aquaLight}`,borderRadius:16,padding:"10px",color:view===id?T.white:T.textMid,fontSize:14,fontWeight:900,boxShadow:view===id?`0 4px 14px ${T.aquaLight}`:"none",transition:"all .18s"}}>{label}</button>
+    <div style={{animation:"fadeSlide .3s ease"}}>
+      <div style={{display:"flex",gap:8,padding:"13px 14px 12px"}}>
+        {[["shop","🛍️ Shop"],["gacha",null]].map(([id,label])=>(
+          <button key={id} onClick={()=>setView(id)} style={{flex:1,background:view===id?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.white,border:view===id?"none":`2px solid ${T.aquaLight}`,borderRadius:16,padding:"10px",color:view===id?T.white:T.textMid,fontSize:14,fontWeight:900,boxShadow:view===id?`0 4px 14px ${T.aquaLight}`:"none",transition:"all .18s",display:"inline-flex",alignItems:"center",justifyContent:"center",gap:5}}>{label||<><img src="/images/currency/bagel.png" style={{width:16,height:16,objectFit:"contain"}}/>Gacha</>}</button>
         ))}
       </div>
-      {view==="shop" &&<ShopBuyView S={S} onBuy={onBuy}/>}
-      {view==="gacha"&&<GachaView   S={S} onGacha={onGacha}/>}
+      {view==="shop" &&<div style={{padding:"0 14px 13px"}}><ShopBuyView S={S} onBuy={onBuy}/></div>}
+      {view==="gacha"&&<div style={{padding:"0 14px 13px"}}><GachaView S={S} onGacha={onGacha}/></div>}
     </div>
   );
 }
@@ -635,9 +678,9 @@ function ShopBuyView({S,onBuy}){
   const items=STORE_ITEMS.filter(i=>!i.gacha_only&&(cat==="All"||i.list_category===cat));
   return(<>
     <div style={{background:`linear-gradient(135deg,${T.goldLight},#FFE880)`,borderRadius:18,padding:"12px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:10}}>
-      <span style={{fontSize:22}}>🍯</span>
+      <img src="/images/currency/honeypot.png" style={{width:32,height:32,objectFit:"contain"}}/>
       <div><div style={{fontWeight:900,fontSize:14,color:"#A06000"}}>Honeypot Shop</div><div style={{fontWeight:700,fontSize:12,color:"#C08000"}}>Buy furniture with your Honeypot</div></div>
-      <div style={{marginLeft:"auto",fontWeight:900,fontSize:16,color:"#A06000"}}>{S.currency} 🍯</div>
+      <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:4}}><span style={{fontWeight:900,fontSize:16,color:"#A06000"}}>{S.currency}</span><img src="/images/currency/honeypot.png" style={{width:22,height:22,objectFit:"contain"}}/></div>
     </div>
     <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:6,marginBottom:10}}>
       {cats.map(c=><button key={c} onClick={()=>setCat(c)} style={{background:cat===c?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.white,border:cat===c?"none":`2px solid ${T.aquaLight}`,borderRadius:13,padding:"5px 13px",color:cat===c?T.white:T.textMid,fontSize:11,fontWeight:700,whiteSpace:"nowrap",flexShrink:0,transition:"all .18s"}}>{c}</button>)}
@@ -655,7 +698,7 @@ function ShopBuyView({S,onBuy}){
               <span style={{fontSize:9,color:T.textLight,fontWeight:700}}>Stock: {item.item_qty>50?"∞":item.item_qty}</span>
             </div>
             <button onClick={()=>!owned&&onBuy(item)} disabled={owned||S.currency<item.price} style={{width:"100%",background:owned?"#E0E0E0":canBuy?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.snow,border:owned||canBuy?"none":`2px solid ${T.aquaLight}`,borderRadius:12,padding:"7px",color:owned?"#9E9E9E":canBuy?T.white:T.textLight,fontSize:11,fontWeight:800}}>
-              {owned?"✅ Owned":`${item.price} 🍯`}
+              {owned?"✅ Owned":<>{item.price} <img src="/images/currency/honeypot.png" style={{width:13,height:13,objectFit:"contain",verticalAlign:"middle"}}/></>}
             </button>
           </div>
         );
@@ -671,83 +714,127 @@ function GachaView({S,onGacha}){
 
   const pool=GACHA_TABLE[poolIdx];
   const gachaItems=pool.item_ids.map(id=>STORE_ITEMS.find(i=>i.id===id)).filter(Boolean);
+  const ownedCount=gachaItems.filter(i=>S.owned.includes(i.id)).length;
+  const can1=S.bagels>=GACHA_BAGEL_PRICE;
+  const can10=S.bagels>=GACHA_BAGEL_PRICE*10;
 
-  return(<>
-    {/* Pool switcher — reads from 08_Gacha table */}
-    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
-      <button onClick={()=>setPoolIdx(i=>Math.max(0,i-1))} disabled={poolIdx===0}
-        style={{width:32,height:32,borderRadius:"50%",border:`2px solid ${T.aquaLight}`,background:poolIdx===0?T.snow:T.white,color:poolIdx===0?T.textLight:T.textDark,fontSize:16,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>‹</button>
-      <div style={{flex:1,textAlign:"center"}}>
-        <div style={{fontWeight:900,fontSize:14,color:T.textDark}}>{pool.pool_emoji} {pool.pool_name}</div>
-        <div style={{fontSize:10,color:T.textLight,fontWeight:700}}>{poolIdx+1} / {GACHA_TABLE.length}</div>
-      </div>
-      <button onClick={()=>setPoolIdx(i=>Math.min(GACHA_TABLE.length-1,i+1))} disabled={poolIdx===GACHA_TABLE.length-1}
-        style={{width:32,height:32,borderRadius:"50%",border:`2px solid ${T.aquaLight}`,background:poolIdx===GACHA_TABLE.length-1?T.snow:T.white,color:poolIdx===GACHA_TABLE.length-1?T.textLight:T.textDark,fontSize:16,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>›</button>
-    </div>
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:12,paddingBottom:6}}>
 
-    {/* Bagel balance */}
-    <div style={{background:"linear-gradient(135deg,#FFF5EC,#FFE8D0)",border:"2px solid #FFD0A0",borderRadius:18,padding:"10px 16px",marginBottom:10,display:"flex",alignItems:"center",gap:10}}>
-      <span style={{fontSize:22}}>🥯</span>
-      <div><div style={{fontWeight:900,fontSize:13,color:"#904000"}}>Bagel Tokens</div><div style={{fontWeight:700,fontSize:11,color:"#C06000"}}>Earn 1 🥯 for every 5 entries logged</div></div>
-      <div style={{marginLeft:"auto",fontWeight:900,fontSize:18,color:"#904000"}}>{S.bagels} 🥯</div>
-    </div>
+      {/* ── Large Banner Card ── */}
+      <div style={{
+        background:"linear-gradient(160deg,#FFFBE8 0%,#FFF3C0 60%,#FFE8A0 100%)",
+        borderRadius:24,padding:"18px 16px 16px",position:"relative",
+        boxShadow:"0 8px 32px rgba(255,184,48,.22)",overflow:"hidden"
+      }}>
+        {/* Discount badge */}
+        <div style={{
+          position:"absolute",top:0,right:0,
+          background:"linear-gradient(135deg,#FF4D8D,#FF2060)",
+          borderRadius:"0 24px 0 20px",
+          padding:"7px 16px",
+          color:"#fff",fontWeight:900,fontSize:13,letterSpacing:.3,
+          boxShadow:"0 4px 14px rgba(255,77,141,.45)"
+        }}>80% off</div>
 
-    {/* Banner placeholder */}
-    <div style={{background:`linear-gradient(135deg,${T.purplePale},${T.pinkPale},${T.aquaPale})`,border:`2px dashed ${T.pinkLight}`,borderRadius:18,height:120,marginBottom:10,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",position:"relative"}}>
-      <div style={{textAlign:"center",pointerEvents:"none"}}>
-        <div style={{fontSize:28,marginBottom:4}}>🖼️</div>
-        <div style={{fontWeight:800,color:T.textLight,fontSize:12}}>Banner — {pool.pool_name}</div>
-        <div style={{fontWeight:600,color:T.textLight,fontSize:10,marginTop:2}}>Replace with pool artwork</div>
-      </div>
-    </div>
-
-    {/* Pull card with ? button */}
-    <div style={{background:`linear-gradient(135deg,${T.purplePale},${T.pinkPale},${T.aquaPale})`,border:`2px solid ${T.pinkLight}`,borderRadius:22,padding:"16px 18px",marginBottom:14,textAlign:"center",boxShadow:`0 6px 28px ${T.pinkLight}`,position:"relative"}}>
-      {/* Probability ? button */}
-      <button onClick={()=>setShowRates(true)}
-        style={{position:"absolute",top:10,right:10,width:28,height:28,borderRadius:"50%",background:T.white,border:`2px solid ${T.pinkLight}`,color:T.textMid,fontSize:13,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 2px 8px ${T.pinkLight}`}}>?</button>
-
-      <div style={{fontSize:46,marginBottom:5,animation:"drift 3s ease-in-out infinite"}}>{pool.pool_emoji}</div>
-      <div style={{fontWeight:900,fontSize:16,color:T.textDark,marginBottom:2}}>{pool.pool_name}</div>
-      <div style={{color:T.textMid,fontWeight:700,fontSize:12,marginBottom:12}}>{GACHA_BAGEL_PRICE} 🥯 per pull</div>
-      <button onClick={()=>onGacha(pool.pool_id)} disabled={S.bagels<GACHA_BAGEL_PRICE}
-        style={{width:"100%",background:S.bagels>=GACHA_BAGEL_PRICE?`linear-gradient(135deg,${T.pink},${T.purple})`:T.snow,border:S.bagels>=GACHA_BAGEL_PRICE?"none":`2px solid ${T.aquaLight}`,borderRadius:17,padding:"13px",color:S.bagels>=GACHA_BAGEL_PRICE?T.white:T.textLight,fontSize:15,fontWeight:900,boxShadow:S.bagels>=GACHA_BAGEL_PRICE?`0 5px 20px ${T.pinkLight}`:"none"}}>
-        🎲 Pull ({GACHA_BAGEL_PRICE} 🥯)
-      </button>
-    </div>
-
-    {/* Exclusive Catalog */}
-    <div style={{fontWeight:800,color:T.textMid,fontSize:12,marginBottom:8}}>✨ Exclusive Catalog ({gachaItems.filter(i=>S.owned.includes(i.id)).length}/{gachaItems.length})</div>
-    <div style={{background:"rgba(255,255,255,.6)",borderRadius:11,padding:"7px 11px",fontSize:11,fontWeight:700,color:"#B07040",marginBottom:10}}>🔒 Pull-only items — not available in Shop</div>
-    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:7}}>
-      {gachaItems.map(item=>{const owned=S.owned.includes(item.id);const R=RARITY[item.rarity];return(
-        <div key={item.id} className={owned?`rarity-${item.rarity}`:""} style={{background:owned?R.bg:T.snow,border:`2px solid ${owned?R.border:"#E0E0E0"}`,borderRadius:13,padding:"9px 5px",textAlign:"center",opacity:owned?1:.5}}>
-          <div style={{fontSize:23}}>{owned?item.emoji:"❓"}</div>
-          <div style={{fontWeight:800,fontSize:8,color:owned?T.textDark:T.textLight,marginTop:2,lineHeight:1.3}}>{owned?item.name:"???"}</div>
-          <div style={{fontWeight:700,fontSize:8,color:R.col}}>{item.rarity}</div>
+        {/* Pool artwork area */}
+        <div style={{textAlign:"center",padding:"14px 0 10px"}}>
+          <div style={{fontSize:90,lineHeight:1,animation:"drift 3s ease-in-out infinite",display:"inline-block",filter:"drop-shadow(0 8px 16px rgba(255,184,48,.35))"}}>{pool.pool_emoji}</div>
         </div>
-      );})}
-    </div>
 
-    {/* Rates popover */}
-    {showRates&&(
-      <div onClick={()=>setShowRates(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.35)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
-        <div onClick={e=>e.stopPropagation()} style={{background:T.white,borderRadius:22,padding:"20px 18px",width:"100%",maxWidth:300,boxShadow:`0 16px 50px rgba(0,0,0,.18)`,animation:"popIn .25s ease"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-            <div style={{fontWeight:900,fontSize:15,color:T.textDark}}>Drop Rates</div>
-            <button onClick={()=>setShowRates(false)} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:28,height:28,color:T.textMid,fontSize:14,fontWeight:800}}>×</button>
-          </div>
-          {[["Common","—",T.textLight,"#F5F5F5"],["Rare","55%",RARITY.Rare.col,RARITY.Rare.bg],["Epic","30%",RARITY.Epic.col,RARITY.Epic.bg],["Legendary","10%",RARITY.Legendary.col,RARITY.Legendary.bg],["Unique","5%",RARITY.Unique.col,RARITY.Unique.bg]].map(([r,p,col,bg])=>(
-            <div key={r} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:bg,border:`1.5px solid ${col}44`,borderRadius:11,padding:"8px 12px",marginBottom:7}}>
-              <span style={{fontWeight:800,fontSize:13,color:col}}>{r}</span>
-              <span style={{fontWeight:900,fontSize:14,color:col}}>{p}</span>
-            </div>
+        {/* Pool name */}
+        <div style={{textAlign:"center",fontWeight:900,fontSize:17,color:T.textDark,marginBottom:10,letterSpacing:.2}}>{pool.pool_name}</div>
+
+        {/* Pagination dots */}
+        <div style={{display:"flex",justifyContent:"center",gap:7,marginBottom:12}}>
+          {GACHA_TABLE.map((_,i)=>(
+            <button key={i} onClick={()=>setPoolIdx(i)} style={{
+              width:i===poolIdx?22:8,height:8,borderRadius:4,border:"none",padding:0,
+              background:i===poolIdx?T.pink:"rgba(255,107,173,.25)",
+              transition:"all .25s ease",cursor:"pointer"
+            }}/>
           ))}
-          <div style={{color:T.textLight,fontSize:10,fontWeight:600,textAlign:"center",marginTop:8}}>Tap anywhere to close</div>
+        </div>
+
+        {/* Bottom row: bagel balance + rates */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{background:"rgba(255,255,255,.7)",borderRadius:20,padding:"5px 12px",display:"flex",alignItems:"center",gap:5,border:"1.5px solid rgba(255,184,48,.35)"}}>
+            <img src="/images/currency/bagel.png" style={{width:22,height:22,objectFit:"contain"}}/>
+            <span style={{fontWeight:900,fontSize:13,color:"#904000"}}>{S.bagels}</span>
+            <span style={{fontSize:10,color:"#C08000",fontWeight:700}}>tokens</span>
+          </div>
+          <button onClick={()=>setShowRates(true)} style={{
+            background:"rgba(255,255,255,.7)",border:"1.5px solid rgba(255,107,173,.3)",
+            borderRadius:20,padding:"5px 13px",color:T.textMid,fontSize:11,fontWeight:700,cursor:"pointer"
+          }}>Rates ？</button>
         </div>
       </div>
-    )}
-  </>);
+
+      {/* ── Draw Buttons ── */}
+      <div style={{display:"flex",gap:11}}>
+        <button onClick={()=>onGacha(pool.pool_id,1)} disabled={!can1} style={{
+          flex:1,borderRadius:30,border:"none",padding:"14px 10px",cursor:can1?"pointer":"default",
+          background:can1?`linear-gradient(135deg,${T.pink},#FF3070)`:"#F0E0E8",
+          color:can1?T.white:"#C0A0B0",fontWeight:900,fontSize:15,lineHeight:1.4,
+          boxShadow:can1?`0 6px 20px rgba(255,107,173,.45)`:"none",transition:"all .18s"
+        }}>1 draw<br/><span style={{fontSize:11,fontWeight:700,opacity:.88,display:"inline-flex",alignItems:"center",gap:2}}>{GACHA_BAGEL_PRICE} <img src="/images/currency/bagel.png" style={{width:13,height:13,objectFit:"contain"}}/></span></button>
+        <button onClick={()=>onGacha(pool.pool_id,10)} disabled={!can10} style={{
+          flex:1,borderRadius:30,border:"none",padding:"14px 10px",cursor:can10?"pointer":"default",
+          background:can10?`linear-gradient(135deg,${T.pink},#FF3070)`:"#F0E0E8",
+          color:can10?T.white:"#C0A0B0",fontWeight:900,fontSize:15,lineHeight:1.4,
+          boxShadow:can10?`0 6px 20px rgba(255,107,173,.45)`:"none",transition:"all .18s"
+        }}>10 draws<br/><span style={{fontSize:11,fontWeight:700,opacity:.88,display:"inline-flex",alignItems:"center",gap:2}}>{GACHA_BAGEL_PRICE*10} <img src="/images/currency/bagel.png" style={{width:13,height:13,objectFit:"contain"}}/></span></button>
+      </div>
+
+      {/* ── Collections ── */}
+      <div style={{
+        background:T.white,borderRadius:22,padding:"15px 14px",
+        boxShadow:"0 2px 16px rgba(0,0,0,.06)"
+      }}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:11}}>
+          <div style={{fontWeight:900,color:T.textDark,fontSize:14}}>Collections</div>
+          <div style={{background:T.aquaPale,borderRadius:20,padding:"3px 11px",fontSize:11,fontWeight:800,color:T.aquaDark}}>{ownedCount}/{gachaItems.length}</div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+          {gachaItems.slice(0,8).map(item=>{
+            const isOwned=S.owned.includes(item.id);
+            const R=RARITY[item.rarity];
+            return(
+              <div key={item.id} className={isOwned?`rarity-${item.rarity}`:""} style={{
+                background:isOwned?R.bg:"#F7F7F7",border:`2px solid ${isOwned?R.border:"#E4E4E4"}`,
+                borderRadius:14,padding:"9px 4px",textAlign:"center",
+                opacity:isOwned?1:.55,transition:"opacity .2s"
+              }}>
+                <div style={{fontSize:22}}>{isOwned?item.emoji:"❓"}</div>
+                <div style={{fontWeight:800,fontSize:8,color:isOwned?T.textDark:T.textLight,marginTop:3,lineHeight:1.25,wordBreak:"break-word"}}>{isOwned?item.name:"???"}</div>
+                <div style={{fontWeight:700,fontSize:7,color:R.col,marginTop:1}}>{item.rarity}</div>
+              </div>
+            );
+          })}
+        </div>
+        {gachaItems.length>8&&<div style={{textAlign:"center",marginTop:9,fontSize:11,fontWeight:700,color:T.textLight}}>+{gachaItems.length-8} more items</div>}
+      </div>
+
+      {/* ── Rates Modal ── */}
+      {showRates&&(
+        <div onClick={()=>setShowRates(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.35)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:T.white,borderRadius:22,padding:"20px 18px",width:"100%",maxWidth:300,boxShadow:`0 16px 50px rgba(0,0,0,.18)`,animation:"popIn .25s ease"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+              <div style={{fontWeight:900,fontSize:15,color:T.textDark}}>Drop Rates</div>
+              <button onClick={()=>setShowRates(false)} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:28,height:28,color:T.textMid,fontSize:14,fontWeight:800}}>×</button>
+            </div>
+            {[["Common","—",T.textLight,"#F5F5F5"],["Rare","55%",RARITY.Rare.col,RARITY.Rare.bg],["Epic","30%",RARITY.Epic.col,RARITY.Epic.bg],["Legendary","10%",RARITY.Legendary.col,RARITY.Legendary.bg],["Unique","5%",RARITY.Unique.col,RARITY.Unique.bg]].map(([r,p,col,bg])=>(
+              <div key={r} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:bg,border:`1.5px solid ${col}44`,borderRadius:11,padding:"8px 12px",marginBottom:7}}>
+                <span style={{fontWeight:800,fontSize:13,color:col}}>{r}</span>
+                <span style={{fontWeight:900,fontSize:14,color:col}}>{p}</span>
+              </div>
+            ))}
+            <div style={{color:T.textLight,fontSize:10,fontWeight:600,textAlign:"center",marginTop:8}}>Tap anywhere to close</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 /* ── COLLECTION / ACHIEVEMENTS ───────────────────────────── */
@@ -779,20 +866,19 @@ function CollectionTab({S}){
               const a=ACHIEVEMENTS.find(x=>x.id===achObj.id);if(!a)return null;
               const R=RARITY[a.reward?.rarity||"Common"];
               return(
-                <div key={achObj.id} style={{background:`linear-gradient(135deg,${T.aquaPale},${T.pinkPale})`,border:`2px solid ${T.aquaLight}`,borderRadius:17,padding:"13px 11px",position:"relative",paddingBottom:18}}>
+                <div key={achObj.id} style={{background:`linear-gradient(135deg,${T.aquaPale},${T.pinkPale})`,border:`2px solid ${T.aquaLight}`,borderRadius:17,padding:"14px 11px 12px",position:"relative",textAlign:"center"}}>
                   <div style={{position:"absolute",top:7,right:9,fontSize:9,fontWeight:800,color:T.textLight}}>{fmtDate(achObj.unlockedAt)}</div>
-                  <div style={{fontSize:26,marginBottom:5}}>{a.icon}</div>
-                  <div style={{fontWeight:800,fontSize:13,color:T.textDark,marginBottom:2,paddingRight:50}}>{a.name}</div>
-                  <div style={{fontSize:10,color:T.textMid,fontWeight:600,lineHeight:1.4,marginBottom:8}}>{a.desc}</div>
-                  <div style={{fontSize:10,fontWeight:800,color:T.aquaDark,marginBottom:6}}>✅ Unlocked</div>
-                  {/* Reward icon slot */}
+                  {/* Reward icon — top center */}
                   <button onClick={()=>setActiveReward({...a.reward,achName:a.name})}
-                    style={{position:"absolute",bottom:10,right:9,width:32,height:32,borderRadius:"50%",
-                      background:R.bg,border:`2px solid ${R.border}`,
-                      display:"flex",alignItems:"center",justifyContent:"center",
-                      fontSize:15,cursor:"pointer",boxShadow:`0 2px 8px ${R.border}44`}}>
-                    {a.reward?.icon||"🎁"}
+                    style={{width:52,height:52,borderRadius:"50%",border:`2.5px solid ${R.border}`,
+                      background:R.bg,display:"flex",alignItems:"center",justifyContent:"center",
+                      fontSize:24,cursor:"pointer",boxShadow:`0 4px 16px ${R.border}55`,
+                      margin:"0 auto 10px"}}>
+                    {a.reward?.icon?.startsWith("/")?<img src={a.reward.icon} style={{width:28,height:28,objectFit:"contain"}}/>:(a.reward?.icon||"🎁")}
                   </button>
+                  <div style={{fontWeight:900,fontSize:12,color:T.textDark,marginBottom:4,lineHeight:1.3}}>{a.name}</div>
+                  <div style={{fontSize:10,color:T.textMid,fontWeight:600,lineHeight:1.4,marginBottom:6}}>{a.desc}</div>
+                  <div style={{fontSize:9,fontWeight:800,color:T.aquaDark}}>✅ Unlocked</div>
                 </div>
               );
             })}
@@ -805,15 +891,13 @@ function CollectionTab({S}){
             {undone.map(a=>{
               const R=RARITY[a.reward?.rarity||"Common"];
               return(
-                <div key={a.id} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:17,padding:"13px 11px",opacity:.52,position:"relative",paddingBottom:18}}>
-                  <div style={{fontSize:26,marginBottom:5,filter:"grayscale(1)"}}>{a.icon}</div>
-                  <div style={{fontWeight:800,fontSize:13,color:T.textDark,marginBottom:2}}>{a.name}</div>
-                  <div style={{fontSize:10,color:T.textMid,fontWeight:600,lineHeight:1.4,marginBottom:8}}>{a.desc}</div>
-                  {/* Reward icon slot — locked state */}
-                  <div style={{position:"absolute",bottom:10,right:9,width:32,height:32,borderRadius:"50%",
-                    background:"#EEEEEE",border:"2px solid #BDBDBD",
+                <div key={a.id} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:17,padding:"14px 11px 12px",opacity:.5,textAlign:"center"}}>
+                  {/* Reward icon — top center, locked */}
+                  <div style={{width:52,height:52,borderRadius:"50%",background:"#EEEEEE",border:"2px solid #BDBDBD",
                     display:"flex",alignItems:"center",justifyContent:"center",
-                    fontSize:14,color:"#BDBDBD"}}>🎁</div>
+                    fontSize:24,color:"#BDBDBD",margin:"0 auto 10px",filter:"grayscale(1)"}}>🎁</div>
+                  <div style={{fontWeight:900,fontSize:12,color:T.textDark,marginBottom:4,lineHeight:1.3}}>{a.name}</div>
+                  <div style={{fontSize:10,color:T.textMid,fontWeight:600,lineHeight:1.4}}>{a.desc}</div>
                 </div>
               );
             })}
@@ -825,7 +909,7 @@ function CollectionTab({S}){
       {activeReward&&(
         <div onClick={()=>setActiveReward(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.35)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
           <div onClick={e=>e.stopPropagation()} style={{background:T.white,borderRadius:24,padding:"26px 22px",minWidth:220,textAlign:"center",boxShadow:"0 20px 60px rgba(0,0,0,.2)",animation:"popIn .3s ease"}}>
-            <div style={{fontSize:54,marginBottom:8}}>{activeReward.icon}</div>
+            <div style={{fontSize:54,marginBottom:8,display:"flex",justifyContent:"center"}}>{activeReward.icon?.startsWith("/")?<img src={activeReward.icon} style={{width:54,height:54,objectFit:"contain"}}/>:activeReward.icon}</div>
             <div style={{fontWeight:900,fontSize:16,color:T.textDark,marginBottom:4}}>{activeReward.name}</div>
             <div style={{display:"inline-block",background:RARITY[activeReward.rarity].bg,border:`2px solid ${RARITY[activeReward.rarity].border}`,borderRadius:10,padding:"3px 14px",color:RARITY[activeReward.rarity].col,fontWeight:800,fontSize:12,marginBottom:10}}>
               {activeReward.rarity}
@@ -840,8 +924,10 @@ function CollectionTab({S}){
 }
 
 /* ── PROFILE MODAL ───────────────────────────────────────── */
-function ProfileModal({S,setS,onClose,showToast}){
+function ProfileModal({S,setS,onClose,showToast,avatars=[],bgcolors=[]}){
   const [form,setForm]=useState({...S.profile});
+  const [showPicker,setShowPicker]=useState(false);
+  const [avTab,setAvTab]=useState("avatar");
   const setF=(k,v)=>setForm(f=>({...f,[k]:v}));
   const toggleFavTag=id=>setF("favTags",form.favTags.includes(id)?form.favTags.filter(t=>t!==id):form.favTags.length<5?[...form.favTags,id]:form.favTags);
   const savePro=()=>{setS(p=>({...p,profile:form}));showToast("Profile saved!","gold");onClose();};
@@ -849,28 +935,76 @@ function ProfileModal({S,setS,onClose,showToast}){
     <div style={{position:"fixed",inset:0,background:"rgba(180,230,245,.5)",backdropFilter:"blur(18px)",zIndex:200,display:"flex",alignItems:"flex-end"}}>
       <div style={{background:T.white,borderRadius:"26px 26px 0 0",width:"100%",maxWidth:393,margin:"0 auto",padding:"20px 18px 36px",border:`2px solid ${T.aquaLight}`,borderBottom:"none",maxHeight:"88vh",overflowY:"auto",boxShadow:`0 -14px 44px rgba(61,216,232,.13)`}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
-          <div style={{fontWeight:900,fontSize:17,color:T.textDark}}>⚙️ Profile & Settings</div>
+          <div style={{fontWeight:900,fontSize:18,color:T.textDark,display:"flex",alignItems:"center",gap:6}}><img src="/images/icon/setting.png" alt="" style={{width:30,height:30}}/>Profile & Settings</div>
           <button onClick={onClose} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:30,height:30,color:T.textMid,fontSize:16,fontWeight:800}}>×</button>
         </div>
         <div style={{textAlign:"center",marginBottom:16}}>
-          <div style={{width:64,height:64,borderRadius:"50%",background:`linear-gradient(135deg,${T.aquaLight},${T.pinkLight})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 10px",border:`3px solid ${T.white}`,boxShadow:`0 4px 16px ${T.aquaLight}`}}>{form.avatarEmoji}</div>
-          <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:7}}>Choose avatar</div>
-          <div style={{display:"flex",gap:5,flexWrap:"wrap",justifyContent:"center",maxHeight:88,overflowY:"auto"}}>
-            {NPC_AVATARS.map(e=><button key={e} onClick={()=>setF("avatarEmoji",e)} style={{fontSize:22,background:form.avatarEmoji===e?T.aquaPale:T.snow,border:`2px solid ${form.avatarEmoji===e?T.aqua:T.aquaLight}`,borderRadius:10,padding:"4px 6px"}}>{e}</button>)}
+          <div style={{width:80,height:80,borderRadius:"50%",background:form.avatarBgHex||`linear-gradient(135deg,${T.aquaLight},${T.pinkLight})`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 8px",border:`3px solid ${T.white}`,boxShadow:`0 4px 16px ${T.aquaLight}`,overflow:"hidden"}}>
+            {form.avatarUrl?<img src={form.avatarUrl} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:32}}>👤</span>}
           </div>
+          <button onClick={()=>setShowPicker(true)} style={{background:`linear-gradient(135deg,${T.aquaLight},${T.pinkLight})`,border:"none",borderRadius:14,padding:"5px 14px",fontSize:12,fontWeight:800,color:T.aquaDark,cursor:"pointer"}}>Choose avatar</button>
         </div>
-        <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Nickname</div>
+
+        {/* ── Avatar Picker Popup ── */}
+        {showPicker&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.35)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setShowPicker(false)}>
+            <div style={{background:T.white,borderRadius:22,width:320,padding:"18px 16px 20px",boxShadow:"0 12px 48px rgba(0,0,0,.2)"}} onClick={e=>e.stopPropagation()}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{fontWeight:900,fontSize:16,color:T.textDark}}>Choose Avatar</div>
+                <button onClick={()=>setShowPicker(false)} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:8,width:28,height:28,color:T.textMid,fontSize:15,fontWeight:800}}>×</button>
+              </div>
+              {/* Tab bar */}
+              <div style={{display:"flex",borderBottom:`2px solid ${T.aquaLight}`,marginBottom:12}}>
+                {[["avatar","Avatar"],["bg","Background"]].map(([key,label])=>(
+                  <button key={key} onClick={()=>setAvTab(key)} style={{flex:1,background:"none",border:"none",padding:"6px 0",fontWeight:800,fontSize:12,color:avTab===key?T.aquaDark:T.textLight,borderBottom:`3px solid ${avTab===key?T.aqua:"transparent"}`,marginBottom:-2,transition:"color .15s"}}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {/* Avatar tab */}
+              {avTab==="avatar"&&(
+                <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"space-between",maxHeight:200,overflowY:"auto",padding:"4px 2px"}}>
+                  {avatars.map(a=>{
+                    const sel=form.avatarUrl===a.avatar_url;
+                    return(
+                      <button key={a.avatar_id} onClick={()=>setF("avatarUrl",a.avatar_url)}
+                        style={{width:80,height:80,borderRadius:"50%",background:form.avatarBgHex||T.aquaLight,border:`3px solid ${sel?T.aquaDark:T.aquaLight}`,overflow:"hidden",padding:0,flexShrink:0,transition:"border-color .15s"}}>
+                        <img src={a.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {/* Background tab */}
+              {avTab==="bg"&&(
+                <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center",padding:"6px 4px",maxHeight:200,overflowY:"auto"}}>
+                  {bgcolors.map(c=>{
+                    const sel=form.avatarBgHex===c.avatar_bg_hex;
+                    return(
+                      <button key={c.avatar_bg_id} onClick={()=>setF("avatarBgHex",c.avatar_bg_hex)}
+                        style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,background:"none",border:"none",padding:0,cursor:"pointer"}}>
+                        <div style={{width:80,height:80,borderRadius:"50%",background:c.avatar_bg_hex,border:`3px solid ${sel?T.aquaDark:T.aquaLight}`,boxShadow:sel?`0 0 0 2px ${T.aqua}`:"0 1px 4px rgba(0,0,0,.13)",transition:"border-color .15s"}}/>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:5}}>Nickname</div>
         <input value={form.nickname} onChange={e=>setF("nickname",e.target.value)} maxLength={20} placeholder="Your nickname" style={{marginBottom:12}}/>
-        <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Bio <span style={{color:T.textLight,fontWeight:600}}>({form.bio.length}/100)</span></div>
+        <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:5}}>Bio <span style={{color:T.textLight,fontWeight:600}}>({form.bio.length}/100)</span></div>
         <textarea value={form.bio} onChange={e=>setF("bio",e.target.value.slice(0,100))} rows={2} placeholder="Tell us about your food journey..." style={{marginBottom:12,resize:"none"}}/>
-        <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Favourite Cuisine Tags <span style={{color:T.textLight,fontWeight:600}}>({form.favTags.length}/5)</span></div>
+        <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:5}}>Favourite Cuisine Tags <span style={{color:T.textLight,fontWeight:600}}>({form.favTags.length}/5)</span></div>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:16}}>
           {CUISINE_TAGS.filter(t=>!t.dineoutonly).map(tag=>{const sel=form.favTags.includes(tag.id);return(
             <button key={tag.id} onClick={()=>toggleFavTag(tag.id)} style={{background:sel?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.snow,border:`2px solid ${sel?T.aqua:T.aquaLight}`,borderRadius:14,padding:"5px 11px",color:sel?T.white:T.textMid,fontSize:11,fontWeight:700,transition:"all .18s",opacity:!sel&&form.favTags.length>=5?.4:1}}>{tag.label}</button>
           );})}
         </div>
         <div style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:16,padding:"12px 14px",marginBottom:16}}>
-          <div style={{fontWeight:800,color:T.textDark,fontSize:13,marginBottom:8}}>⚙️ System Settings</div>
+          <div style={{fontWeight:800,color:T.textDark,fontSize:14,marginBottom:8,display:"flex",alignItems:"center",gap:5}}><img src="/images/icon/setting.png" alt="" style={{width:15,height:15}}/>System Settings</div>
           {[["🌙 Dark Mode","Coming soon"],["🔔 Notifications","Coming soon"],["🌐 Language","English"],["🔒 Privacy","Public (default)"]].map(([k,v])=>(
             <div key={k} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${T.aquaLight}`}}>
               <span style={{fontWeight:700,color:T.textDark,fontSize:13}}>{k}</span>
@@ -889,10 +1023,49 @@ function AddModal({S,onClose,onSubmit}){
   const [type,setType]=useState("cook");
   const [step,setStep]=useState(0);
   const [photos,setPhotos]=useState([]);
-  const [form,setForm]=useState({title:"",notes:"",address:"",rating:0,mealTime:"Lunch",tags:[],emoji:"🍳",ingredients:[],servings:{},privacy:"public"});
+  const [form,setForm]=useState({title:"",notes:"",address:"",rating:0,mealTimes:[],tags:[],emoji:"🍳",ingredients:[],servings:{},privacy:"public"});
   const [addrResults,setAddrResults]=useState([]);
   const [showTagSearch,setShowTagSearch]=useState(false);
   const setF=(k,v)=>setForm(f=>({...f,[k]:v}));
+
+  // ── Ingredient live search ──────────────────────────────────────────────
+  const [ingQuery,setIngQuery]=useState("");
+  const [ingResults,setIngResults]=useState([]);
+  const [ingLoading,setIngLoading]=useState(false);
+
+  useEffect(()=>{
+    if(!ingQuery.trim()||!supabase){setIngResults([]);return;}
+    const timer=setTimeout(async()=>{
+      setIngLoading(true);
+      const{data}=await supabase
+        .from("ingredient")
+        .select("ingredient_id,ingredient_name_en,unit")
+        .ilike("ingredient_name_en",`%${ingQuery.trim()}%`)
+        .limit(10);
+      setIngResults(data||[]);
+      setIngLoading(false);
+    },300);
+    return()=>clearTimeout(timer);
+  },[ingQuery]);
+
+  const toggleIngredient=ing=>{
+    const id=String(ing.ingredient_id);
+    if(form.ingredients.includes(id)){
+      setF("ingredients",form.ingredients.filter(x=>x!==id));
+      const s={...form.servings};delete s[id];setF("servings",s);
+    }else{
+      setF("ingredients",[...form.ingredients,id]);
+      // store ingredient meta for display
+      setForm(f=>({...f,
+        ingredients:[...f.ingredients,id],
+        _ingMeta:{...f._ingMeta,[id]:{name:ing.ingredient_name_en,hasUnit:!!ing.unit}},
+      }));
+    }
+    setIngQuery("");setIngResults([]);
+  };
+
+  // Unit options for measured ingredients (unit=true)
+  const UNIT_OPTIONS=["piece","g","kg","ml","L","cup","tbsp","tsp","clove","slice"];
 
   const availableTags=CUISINE_TAGS.filter(t=>type==="cook"?!t.dineoutonly:true);
   const sortedTags=[...availableTags].sort((a,b)=>(S.tagUsage[b.id]||0)-(S.tagUsage[a.id]||0));
@@ -912,33 +1085,32 @@ function AddModal({S,onClose,onSubmit}){
     });
   };
   const removePhoto=id=>setPhotos(prev=>prev.filter(p=>p.id!==id));
-  const toggleIngredient=id=>setF("ingredients",form.ingredients.includes(id)?form.ingredients.filter(i=>i!==id):[...form.ingredients,id]);
   const notesOk=form.notes.trim().length>=30;
   const step2Ok=form.title.trim()&&notesOk;
   const earnAmt=type==="cook"?80:50;
 
   return(
-    <div style={{position:"fixed",inset:0,background:"rgba(180,230,245,.5)",backdropFilter:"blur(16px)",zIndex:200,display:"flex",alignItems:"flex-end"}}>
-      <div style={{background:T.white,borderRadius:"26px 26px 0 0",width:"100%",maxWidth:393,margin:"0 auto",padding:"18px 17px 34px",border:`2px solid ${T.aquaLight}`,borderBottom:"none",maxHeight:"93vh",overflowY:"auto",boxShadow:`0 -14px 44px rgba(61,216,232,.13)`}}>
+    <div style={{position:"fixed",inset:0,background:"rgba(180,230,245,.5)",backdropFilter:"blur(16px)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 10px"}}>
+      <div style={{background:T.white,borderRadius:26,width:"100%",maxWidth:393,margin:"0 auto",padding:"18px 17px 28px",border:`2px solid ${T.aquaLight}`,maxHeight:"93vh",overflowY:"auto",boxShadow:`0 12px 48px rgba(61,216,232,.2)`}}>
         <div style={{display:"flex",gap:6,marginBottom:15}}>
           {["Type","Photos","Details","Confirm"].map((s,i)=><div key={s} style={{flex:1,height:5,borderRadius:5,background:i<=step?`linear-gradient(90deg,${T.aqua},${T.pink})`:T.aquaPale}}/>)}
         </div>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-          <div style={{fontWeight:900,fontSize:16,color:T.textDark}}>{["Choose Type","Add Photos","Fill Details","Preview"][step]}</div>
-          <button onClick={onClose} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:28,height:28,color:T.textMid,fontSize:15,fontWeight:800}}>×</button>
+        <div style={{position:"relative",display:"flex",justifyContent:"center",alignItems:"center",marginBottom:14}}>
+          <div style={{fontWeight:900,fontSize:20,color:T.textDark}}>{["Choose Type","Add Photos","Fill Details","Preview"][step]}</div>
+          <button onClick={onClose} style={{position:"absolute",right:0,background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:28,height:28,color:T.textMid,fontSize:15,fontWeight:800}}>×</button>
         </div>
 
         {step===0&&<>
           <div style={{display:"flex",gap:10,marginBottom:17}}>
-            {[["cook","🍳","Home Cooked","+80 🍯"],["dine","🍽️","Dining Out","+50 🍯"]].map(([id,ic,label,reward])=>(
+            {[["cook","/images/icon/spatula_click.png","Home Cooked",80],["dine","/images/icon/plate.png","Dining Out",50]].map(([id,imgSrc,label,earnVal])=>(
               <div key={id} onClick={()=>setType(id)} style={{flex:1,background:type===id?`linear-gradient(160deg,${T.aquaPale},${T.pinkPale})`:T.snow,border:`2.5px solid ${type===id?T.aqua:T.aquaLight}`,borderRadius:20,padding:"17px 10px",textAlign:"center",cursor:"pointer",transition:"all .18s",boxShadow:type===id?`0 4px 14px ${T.aquaLight}`:"none"}}>
-                <div style={{fontSize:38,marginBottom:7}}>{ic}</div>
+                <div style={{marginBottom:7,display:"flex",justifyContent:"center"}}><img src={imgSrc} style={{width:80,height:80,objectFit:"contain"}}/></div>
                 <div style={{fontWeight:900,fontSize:14,color:T.textDark,marginBottom:4}}>{label}</div>
-                <div style={{background:`linear-gradient(135deg,${T.goldLight},#FFE060)`,borderRadius:11,display:"inline-block",padding:"3px 10px",fontWeight:800,fontSize:11,color:"#A06000"}}>{reward}</div>
+                <div style={{background:`linear-gradient(135deg,${T.goldLight},#FFE060)`,borderRadius:14,display:"inline-flex",alignItems:"center",gap:5,padding:"6px 18px",fontWeight:800,fontSize:15,color:"#A06000"}}>+{earnVal} <img src="/images/currency/honeypot.png" style={{width:18,height:18,objectFit:"contain"}}/></div>
               </div>
             ))}
           </div>
-          <button onClick={()=>setStep(1)} style={{width:"100%",background:`linear-gradient(135deg,${T.pink},${T.purple})`,border:"none",borderRadius:17,padding:13,color:T.white,fontSize:15,fontWeight:900,boxShadow:`0 5px 20px ${T.pinkLight}`}}>Next →</button>
+          <button onClick={()=>setStep(1)} style={{width:"100%",background:`linear-gradient(135deg,${T.pink},${T.purple})`,border:"none",borderRadius:17,padding:13,color:T.white,fontSize:15,fontWeight:900,boxShadow:`0 5px 20px ${T.pinkLight}`}}>Next</button>
         </>}
 
         {step===1&&<>
@@ -960,17 +1132,15 @@ function AddModal({S,onClose,onSubmit}){
           </div>
           <div style={{color:T.textLight,fontSize:11,fontWeight:600,textAlign:"center",marginBottom:14}}>Photos are optional but bring your entry to life!</div>
           <div style={{display:"flex",gap:8}}>
-            <button onClick={()=>setStep(0)} style={{flex:1,background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:11,color:T.textMid,fontSize:13,fontWeight:800}}>← Back</button>
-            <button onClick={()=>setStep(2)} style={{flex:2,background:`linear-gradient(135deg,${T.pink},${T.purple})`,border:"none",borderRadius:14,padding:11,color:T.white,fontSize:14,fontWeight:900,boxShadow:`0 4px 14px ${T.pinkLight}`}}>Next →</button>
+            <button onClick={()=>setStep(0)} style={{flex:1,background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:11,color:T.textMid,fontSize:13,fontWeight:800}}>Back</button>
+            <button onClick={()=>setStep(2)} style={{flex:2,background:`linear-gradient(135deg,${T.pink},${T.purple})`,border:"none",borderRadius:14,padding:11,color:T.white,fontSize:14,fontWeight:900,boxShadow:`0 4px 14px ${T.pinkLight}`}}>Next</button>
           </div>
         </>}
-
+        {/* Fill Details Page */}
         {step===2&&<>
-          <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Emoji</div>
-          <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>{FOOD_EMOJIS.map(e=><button key={e} onClick={()=>setF("emoji",e)} style={{fontSize:21,background:form.emoji===e?T.aquaPale:T.snow,border:`2px solid ${form.emoji===e?T.aqua:T.aquaLight}`,borderRadius:10,padding:"4px 6px"}}>{e}</button>)}</div>
-          <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>Title *</div>
+          <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:4}}>Title</div>
           <input value={form.title} onChange={e=>setF("title",e.target.value)} placeholder={type==="cook"?"e.g. Garlic Butter Pasta":"e.g. Dinner at Din Tai Fung"} style={{marginBottom:11}}/>
-          <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Tags <span style={{color:T.textLight,fontWeight:600}}>(tap to select)</span></div>
+          <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:5}}>Tags <span style={{color:T.textLight,fontWeight:600}}>(tap to select)</span></div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:11,alignItems:"center"}}>
             {suggestedTags.map(tag=>(
               <button key={tag.id} onClick={()=>toggleTag(tag.id)} style={{background:form.tags.includes(tag.id)?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.snow,border:`2px solid ${form.tags.includes(tag.id)?T.aqua:T.aquaLight}`,borderRadius:14,padding:"5px 10px",color:form.tags.includes(tag.id)?T.white:T.textMid,fontSize:11,fontWeight:700,transition:"all .18s"}}>{tag.label}</button>
@@ -979,55 +1149,104 @@ function AddModal({S,onClose,onSubmit}){
           </div>
           {form.tags.length>0&&<div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:8}}>{form.tags.map(id=>{const t=CUISINE_TAGS.find(x=>x.id===id);return t?<span key={id} style={{background:`${T.aqua}22`,border:`1px solid ${T.aquaLight}`,borderRadius:8,padding:"2px 7px",color:T.aquaDark,fontSize:11,fontWeight:700}}>✓ {t.label}</span>:null;})}</div>}
           {type==="cook"&&<>
-            <div style={{display:"flex",gap:10,marginBottom:11}}>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Ingredients <span style={{color:T.textLight,fontWeight:600}}>(optional)</span></div>
-                <div style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:"8px 9px",maxHeight:120,overflowY:"auto"}}>
-                  {INGREDIENTS.map(ing=>(
-                    <div key={ing.id} onClick={()=>toggleIngredient(ing.id)} style={{display:"flex",alignItems:"center",gap:6,padding:"4px 3px",cursor:"pointer",borderRadius:8,background:form.ingredients.includes(ing.id)?T.aquaPale:"transparent"}}>
-                      <span style={{fontSize:16}}>{ing.emoji}</span>
-                      <span style={{fontSize:11,fontWeight:700,color:form.ingredients.includes(ing.id)?T.aquaDark:T.textDark,flex:1}}>{ing.name}</span>
-                      {form.ingredients.includes(ing.id)&&<span style={{fontSize:10,color:T.aquaDark}}>✓</span>}
+            {/* ── Ingredients search box ───────────────────────────── */}
+            <div style={{marginBottom:8}}>
+              <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:5}}>Ingredients <span style={{color:T.textLight,fontWeight:600}}>(optional · search to add)</span></div>
+              <div style={{position:"relative"}}>
+                <input value={ingQuery} onChange={e=>setIngQuery(e.target.value)}
+                  placeholder="Search ingredient e.g. chicken, egg..."
+                  style={{paddingRight:32}}/>
+                {ingLoading&&<span style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:14,color:T.textLight}}>⏳</span>}
+              </div>
+              {/* Search results dropdown */}
+              {ingResults.length>0&&(
+                <div style={{background:T.white,border:`2px solid ${T.aquaLight}`,borderRadius:12,marginTop:4,overflow:"hidden",boxShadow:`0 4px 14px rgba(61,216,232,.12)`}}>
+                  {ingResults.map(ing=>{
+                    const id=String(ing.ingredient_id);
+                    const selected=form.ingredients.includes(id);
+                    return(
+                      <div key={id} onClick={()=>!selected&&toggleIngredient(ing)}
+                        style={{padding:"8px 12px",cursor:selected?"default":"pointer",
+                          background:selected?T.aquaPale:"transparent",
+                          display:"flex",alignItems:"center",justifyContent:"space-between",
+                          borderBottom:`1px solid ${T.aquaLight}`}}>
+                        <span style={{fontSize:14,fontWeight:700,color:selected?T.aquaDark:T.textDark}}>{ing.ingredient_name_en}</span>
+                        <span style={{fontSize:12,fontWeight:700,color:selected?T.aquaDark:T.textLight}}>
+                          {selected?"✓ Added":ing.unit?"📏 measured":"+ Add"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* ── Selected ingredient tags (unit=false) ────────────── */}
+            {form.ingredients.filter(id=>!form._ingMeta?.[id]?.hasUnit).length>0&&(
+              <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:8}}>
+                {form.ingredients.filter(id=>!form._ingMeta?.[id]?.hasUnit).map(id=>(
+                  <span key={id} onClick={()=>setF("ingredients",form.ingredients.filter(x=>x!==id))}
+                    style={{background:T.aquaPale,border:`1.5px solid ${T.aquaLight}`,borderRadius:20,
+                      padding:"4px 10px",fontSize:14,fontWeight:700,color:T.aquaDark,cursor:"pointer",
+                      display:"inline-flex",alignItems:"center",gap:4}}>
+                    {form._ingMeta?.[id]?.name||id} <span style={{fontSize:9,opacity:.6}}>✕</span>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* ── Servings panel (unit=true ingredients only) ──────── */}
+            {form.ingredients.filter(id=>form._ingMeta?.[id]?.hasUnit).length>0&&(
+              <div style={{marginBottom:11}}>
+                <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:5}}>Servings</div>
+                <div style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:"8px 9px"}}>
+                  {form.ingredients.filter(id=>form._ingMeta?.[id]?.hasUnit).map(id=>(
+                    <div key={id} style={{display:"flex",alignItems:"center",gap:6,padding:"4px 0",borderBottom:`1px solid ${T.aquaLight}88`}}>
+                      <span style={{fontSize:14,fontWeight:700,color:T.textDark,flex:1}}>{form._ingMeta?.[id]?.name||id}</span>
+                      <input type="number" min="0"
+                        value={form.servings[id]?.qty||""}
+                        onChange={e=>setF("servings",{...form.servings,[id]:{...form.servings[id],qty:e.target.value}})}
+                        placeholder="Qty" style={{width:52,padding:"3px 6px",fontSize:14,height:28}}/>
+                      <select value={form.servings[id]?.unit||"piece"}
+                        onChange={e=>setF("servings",{...form.servings,[id]:{...form.servings[id],unit:e.target.value}})}
+                        style={{fontSize:14,height:28,padding:"0 4px",width:60}}>
+                        {UNIT_OPTIONS.map(u=><option key={u}>{u}</option>)}
+                      </select>
+                      <button onClick={()=>setF("ingredients",form.ingredients.filter(x=>x!==id))}
+                        style={{background:"none",border:"none",color:T.textLight,fontSize:14,padding:0}}>✕</button>
                     </div>
                   ))}
                 </div>
               </div>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:5}}>Servings <span style={{color:T.textLight,fontWeight:600}}>(optional)</span></div>
-                <div style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:"8px 9px",maxHeight:120,overflowY:"auto"}}>
-                  {form.ingredients.length===0?<div style={{color:T.textLight,fontSize:11,fontWeight:600,textAlign:"center",paddingTop:8}}>Select ingredients first</div>:
-                  form.ingredients.map(id=>{const ing=INGREDIENTS.find(i=>i.id===id);if(!ing)return null;return(
-                    <div key={id} style={{display:"flex",alignItems:"center",gap:5,padding:"3px 0"}}>
-                      <span style={{fontSize:13}}>{ing.emoji}</span>
-                      <input type="number" min="0" value={form.servings[id]||""} onChange={e=>setF("servings",{...form.servings,[id]:e.target.value})} placeholder={`${ing.unit}`} style={{padding:"3px 6px",fontSize:11,height:28,minWidth:0}}/>
-                      <span style={{fontSize:10,color:T.textMid,fontWeight:600,whiteSpace:"nowrap"}}>{ing.unit}</span>
-                    </div>
-                  );})}
-                </div>
-              </div>
-            </div>
+            )}
           </>}
-          <div style={{display:"flex",gap:10,marginBottom:11}}>
-            <div style={{flex:1}}>
-              <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>Meal Time</div>
-              <select value={form.mealTime} onChange={e=>setF("mealTime",e.target.value)}>{MEAL_TIMES.map(m=><option key={m}>{m}</option>)}</select>
+          <div style={{marginBottom:11}}>
+            <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:6}}>Meal Time <span style={{color:T.textLight,fontWeight:600}}>(select all that apply)</span></div>
+            <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+              {MEAL_TIMES.map(m=>{const sel=form.mealTimes.includes(m);return(
+                <button key={m} onClick={()=>setF("mealTimes",sel?form.mealTimes.filter(x=>x!==m):[...form.mealTimes,m])} style={{background:sel?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.snow,border:`2px solid ${sel?T.aqua:T.aquaLight}`,borderRadius:14,padding:"6px 11px",color:sel?T.white:T.textMid,fontSize:12,fontWeight:700,transition:"all .18s"}}>
+                  {m}
+                </button>
+              );})}
             </div>
-            {type==="dine"&&<div style={{flex:1}}>
-              <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>Rating</div>
-              <div style={{display:"flex",gap:1,paddingTop:8}}>{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setF("rating",n)} style={{background:"none",border:"none",fontSize:20,color:n<=form.rating?T.gold:T.aquaLight,padding:0}}>★</button>)}</div>
-            </div>}
           </div>
-          <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>Location <span style={{color:T.textLight,fontWeight:600}}>(optional)</span></div>
-          <div style={{position:"relative",marginBottom:addrResults.length?0:11}}>
-            <input value={form.address} onChange={e=>handleAddrInput(e.target.value)} placeholder="Search address..." style={{paddingLeft:36}}/>
+          {type==="dine"&&<div style={{marginBottom:11}}>
+            <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>Rating</div>
+            <div style={{display:"flex",gap:1}}>{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setF("rating",n)} style={{background:"none",border:"none",fontSize:22,color:n<=form.rating?T.gold:T.aquaLight,padding:0}}>★</button>)}</div>
+          </div>}
+          <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:4}}>
+            Location {type==="cook"?<span style={{color:T.pink,fontWeight:700}}>(Dining out only)</span>:<span style={{color:T.textLight,fontWeight:600}}>(optional)</span>}
+          </div>
+          <div style={{position:"relative",marginBottom:addrResults.length?0:11,opacity:type==="cook"?0.38:1,pointerEvents:type==="cook"?"none":"auto"}}>
+            <input value={form.address} onChange={e=>handleAddrInput(e.target.value)} placeholder="Search address..." style={{paddingLeft:36,background:type==="cook"?T.snow:undefined,cursor:type==="cook"?"not-allowed":undefined}}/>
             <span style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",fontSize:14}}>📍</span>
             <div style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",fontSize:9,color:T.textLight,fontWeight:700}}>Google Maps</div>
           </div>
           {addrResults.length>0&&<div style={{background:T.white,border:`2px solid ${T.aquaLight}`,borderRadius:14,marginBottom:11,overflow:"hidden",boxShadow:`0 4px 14px rgba(61,216,232,.12)`}}>
             {addrResults.map(a=><div key={a} onClick={()=>{setF("address",a);setAddrResults([]);}} style={{padding:"9px 14px",cursor:"pointer",fontSize:13,color:T.textDark,fontWeight:600,borderBottom:`1px solid ${T.aquaLight}`}}>📍 {a}</div>)}
           </div>}
-          <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>
-            Notes * <span style={{fontWeight:600,color:form.notes.length>=30?T.aquaDark:T.textLight}}>({form.notes.length}/30 min)</span>
+          <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:4}}>
+            Notes<span style={{fontWeight:600,color:form.notes.length>=30?T.aquaDark:T.textLight}}>({form.notes.length}/30 min)</span>
           </div>
           <textarea value={form.notes} onChange={e=>setF("notes",e.target.value)} rows={3} placeholder="Share your experience, taste, recipe tips... (min. 30 characters)" style={{marginBottom:4,resize:"none",borderColor:form.notes.length>0&&!notesOk?"#FF6B8A":undefined}}/>
           {form.notes.length>0&&!notesOk&&<div style={{color:"#FF6B8A",fontSize:11,fontWeight:700,marginBottom:8}}>{30-form.notes.length} more characters needed</div>}
@@ -1036,9 +1255,9 @@ function AddModal({S,onClose,onSubmit}){
             <div style={{background:T.aquaPale,borderRadius:10,padding:"3px 10px",fontWeight:800,fontSize:11,color:T.aquaDark}}>Public</div>
           </div>
           <div style={{display:"flex",gap:8}}>
-            <button onClick={()=>setStep(1)} style={{flex:1,background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:11,color:T.textMid,fontSize:13,fontWeight:800}}>← Back</button>
+            <button onClick={()=>setStep(1)} style={{flex:1,background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:11,color:T.textMid,fontSize:13,fontWeight:800}}>Back</button>
             <button onClick={()=>{if(!step2Ok)return;setStep(3);}} style={{flex:2,background:step2Ok?`linear-gradient(135deg,${T.pink},${T.purple})`:T.snow,border:"none",borderRadius:14,padding:11,color:step2Ok?T.white:T.textLight,fontSize:13,fontWeight:900,boxShadow:step2Ok?`0 4px 14px ${T.pinkLight}`:"none"}}>
-              Preview →{!form.title.trim()?" (title required)":!notesOk?" (notes too short)":""}
+              Preview{!form.title.trim()?" (title required)":!notesOk?" (notes too short)":""}
             </button>
           </div>
         </>}
@@ -1057,12 +1276,12 @@ function AddModal({S,onClose,onSubmit}){
             {form.ingredients.length>0&&<div style={{fontSize:11,color:T.textMid,fontWeight:600,marginTop:6}}>🧑‍🍳 {form.ingredients.map(id=>INGREDIENTS.find(i=>i.id===id)?.emoji).join(" ")}</div>}
           </div>
           <div style={{background:`linear-gradient(135deg,${T.goldLight},#FFE880)`,borderRadius:15,padding:"12px",marginBottom:13,boxShadow:"0 4px 14px rgba(255,184,48,.16)"}}>
-            <div style={{fontWeight:900,fontSize:24,color:"#A06000"}}>+{earnAmt} 🍯</div>
+            <div style={{fontWeight:900,fontSize:24,color:"#A06000",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>+{earnAmt} <img src="/images/currency/honeypot.png" style={{width:22,height:22,objectFit:"contain"}}/></div>
             <div style={{fontWeight:700,color:"#C08000",fontSize:12}}>Honeypot earned for this entry</div>
           </div>
           <div style={{display:"flex",gap:8}}>
             <button onClick={()=>setStep(2)} style={{flex:1,background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:11,color:T.textMid,fontSize:13,fontWeight:800}}>Edit</button>
-            <button onClick={()=>onSubmit({...form,type,photos})} style={{flex:2,background:`linear-gradient(135deg,${T.aqua},${T.pink})`,border:"none",borderRadius:14,padding:11,color:T.white,fontSize:14,fontWeight:900,boxShadow:`0 5px 20px ${T.aquaLight}`}}>✅ Save Entry!</button>
+            <button onClick={()=>onSubmit({...form,mealTime:form.mealTimes.join(" · ")||"—",type,photos})} style={{flex:2,background:`linear-gradient(135deg,${T.aqua},${T.pink})`,border:"none",borderRadius:14,padding:11,color:T.white,fontSize:14,fontWeight:900,boxShadow:`0 5px 20px ${T.aquaLight}`}}>✅ Save Entry!</button>
           </div>
         </div>}
 
@@ -1096,29 +1315,31 @@ function TagSearchModal({type,selected,onToggle,onClose}){
 }
 
 /* ── GACHA MODAL ─────────────────────────────────────────── */
-function GachaModal({S,onClose,onGacha,result,anim,setResult}){
+function GachaModal({S,onClose,onGacha,result,anim,setResult,pullCount=1}){
+  const cost=GACHA_BAGEL_PRICE*pullCount;
   return(
     <div style={{position:"fixed",inset:0,background:"rgba(180,230,245,.52)",backdropFilter:"blur(18px)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
       <div style={{background:T.white,borderRadius:26,padding:"24px 20px",width:"100%",maxWidth:350,border:`2px solid ${T.aquaLight}`,boxShadow:`0 24px 60px rgba(61,216,232,.2)`,textAlign:"center"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-          <div style={{fontWeight:900,fontSize:16,color:T.textDark}}>🎲 Gacha Pull</div>
+          <div style={{fontWeight:900,fontSize:16,color:T.textDark}}>🎲 {pullCount>1?`${pullCount}x Draw`:"Gacha Pull"}</div>
           <button onClick={onClose} style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:9,width:28,height:28,color:T.textMid,fontSize:14,fontWeight:800}}>×</button>
         </div>
         {!result&&!anim&&<>
           <div style={{fontSize:64,marginBottom:10,animation:"drift 3s ease-in-out infinite"}}>🎁</div>
-          <div style={{fontWeight:700,color:T.textDark,marginBottom:4}}>Bagels: <span style={{color:"#904000",fontWeight:900}}>{S.bagels} 🥯</span></div>
-          <div style={{fontWeight:600,color:T.textMid,fontSize:13,marginBottom:18}}>{GACHA_BAGEL_PRICE} 🥯 per pull · Exclusive items only</div>
-          <button onClick={onGacha} disabled={S.bagels<GACHA_BAGEL_PRICE} style={{width:"100%",background:S.bagels>=GACHA_BAGEL_PRICE?`linear-gradient(135deg,${T.pink},${T.purple})`:T.snow,border:"none",borderRadius:16,padding:13,color:S.bagels>=GACHA_BAGEL_PRICE?T.white:T.textLight,fontSize:15,fontWeight:900}}>🎲 Pull Now!</button>
+          <div style={{fontWeight:700,color:T.textDark,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>Bagels: <span style={{color:"#904000",fontWeight:900}}>{S.bagels}</span><img src="/images/currency/bagel.png" style={{width:20,height:20,objectFit:"contain"}}/></div>
+          <div style={{fontWeight:600,color:T.textMid,fontSize:13,marginBottom:18,display:"flex",alignItems:"center",justifyContent:"center",gap:4}}>{cost} <img src="/images/currency/bagel.png" style={{width:14,height:14,objectFit:"contain"}}/> for {pullCount} pull{pullCount>1?"s":""} · Exclusive items only</div>
+          <button onClick={onGacha} disabled={S.bagels<cost} style={{width:"100%",background:S.bagels>=cost?`linear-gradient(135deg,${T.pink},${T.purple})`:T.snow,border:"none",borderRadius:16,padding:13,color:S.bagels>=cost?T.white:T.textLight,fontSize:15,fontWeight:900}}>🎲 Pull Now!</button>
         </>}
-        {anim&&<div style={{padding:"36px 0"}}><div style={{fontSize:58,animation:"spin .7s linear infinite",display:"inline-block"}}>🎰</div><div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginTop:13}}>Pulling...</div></div>}
+        {anim&&<div style={{padding:"36px 0"}}><div style={{fontSize:58,animation:"spin .7s linear infinite",display:"inline-block"}}>🎰</div><div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginTop:13}}>{pullCount>1?`Drawing ${pullCount}x...`:"Pulling..."}</div></div>}
         {result&&!anim&&<>
+          {result.pullCount>1&&<div style={{fontSize:11,fontWeight:800,color:T.textMid,marginBottom:8}}>Best of {result.pullCount} draws ✦</div>}
           <div className={`rarity-${result.rarity}`} style={{background:RARITY[result.rarity].bg,border:`3px solid ${RARITY[result.rarity].border}`,borderRadius:20,padding:"20px 16px",marginBottom:13,animation:"popIn .4s ease"}}>
             <div style={{fontSize:72,marginBottom:5}}>{result.emoji}</div>
             <div style={{background:"rgba(255,255,255,.75)",borderRadius:9,display:"inline-block",padding:"2px 11px",color:RARITY[result.rarity].col,fontWeight:800,fontSize:11,marginBottom:6}}>✦ {result.rarity} ✦</div>
             <div style={{fontWeight:900,fontSize:17,color:T.textDark}}>{result.name}</div>
           </div>
           <div style={{display:"flex",gap:8}}>
-            <button onClick={()=>{setResult(null);onGacha();}} disabled={S.bagels<GACHA_BAGEL_PRICE} style={{flex:1,background:S.bagels>=GACHA_BAGEL_PRICE?T.aquaPale:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:11,color:S.bagels>=GACHA_BAGEL_PRICE?T.aquaDark:T.textLight,fontSize:13,fontWeight:800}}>Pull Again</button>
+            <button onClick={()=>{setResult(null);onGacha();}} disabled={S.bagels<cost} style={{flex:1,background:S.bagels>=cost?T.aquaPale:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:11,color:S.bagels>=cost?T.aquaDark:T.textLight,fontSize:13,fontWeight:800}}>Pull Again</button>
             <button onClick={onClose} style={{flex:1,background:`linear-gradient(135deg,${T.aqua},${T.pink})`,border:"none",borderRadius:14,padding:11,color:T.white,fontSize:13,fontWeight:900}}>Collect! ✦</button>
           </div>
         </>}
@@ -1140,16 +1361,16 @@ function RecordModal({record,onClose}){
         </div>
         {record.photos?.length>0&&<div style={{display:"flex",gap:5,marginBottom:12,overflowX:"auto"}}>{record.photos.map((p,i)=><div key={i} style={{width:72,height:72,borderRadius:12,overflow:"hidden",flexShrink:0,border:`2px solid ${T.aquaLight}`}}><img src={p.preview} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/></div>)}</div>}
         <div style={{textAlign:"center",marginBottom:12}}>
-          <div style={{fontSize:52,marginBottom:4}}>{record.emoji||"🍽️"}</div>
+          <div style={{fontSize:52,marginBottom:4,height:60,display:"flex",alignItems:"center",justifyContent:"center"}}>{record.emoji?<span style={{fontSize:52}}>{record.emoji}</span>:<img src="/images/icon/plate.png" style={{width:60,height:60,objectFit:"contain"}}/>}</div>
           <div style={{fontWeight:900,fontSize:17,color:T.textDark,marginBottom:2}}>{record.title}</div>
           {record.address&&<div style={{color:T.textMid,fontWeight:700,fontSize:12}}>📍 {record.address}</div>}
           {record.rating>0&&<div style={{color:T.gold,fontSize:16,marginTop:2}}>{"★".repeat(record.rating)}{"☆".repeat(5-record.rating)}</div>}
         </div>
         <div style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:"9px 12px",marginBottom:9}}>
-          {[["Type",record.type==="cook"?"🍳 Home Cooked":"🍽️ Dining"],["Meal",`${mealIcon[record.mealTime]||""} ${record.mealTime||""}`],["Date",dateStr],["Earned",`+${record.earned} 🍯`]].map(([k,v])=>(
+          {[["Type",record.type==="cook"?"🍳 Home Cooked":"🍽️ Dining"],["Meal",`${mealIcon[record.mealTime?.split(" · ")[0]]||""} ${record.mealTime||""}`],["Date",dateStr],["Earned",null]].map(([k,v])=>(
             <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"4px 0",borderBottom:`1px solid ${T.aquaLight}`}}>
               <span style={{color:T.textLight,fontSize:12,fontWeight:700}}>{k}</span>
-              <span style={{color:T.textDark,fontSize:12,fontWeight:700}}>{v}</span>
+              <span style={{color:T.textDark,fontSize:12,fontWeight:700,display:"inline-flex",alignItems:"center",gap:3}}>{k==="Earned"?<>+{record.earned} <img src="/images/currency/honeypot.png" style={{width:13,height:13,objectFit:"contain"}}/></>:v}</span>
             </div>
           ))}
         </div>
