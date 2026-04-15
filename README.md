@@ -1,4 +1,4 @@
-# 🍯 HoneyShop: A Food Journaling App with Gamification
+# ![honeypot](images/currency/honeypot.png) HoneyShop: A Food Journaling App with Gamification
 ~ Log Meals · Earn Honeypots · Decorate Your Shop ~
 
 ## Features
@@ -69,20 +69,26 @@ HoneyShop/
 
 | Tab | Key Component | Description |
 |---|---|---|
-| 📓 Journal | `JournalTab` | Log home-cook or dining entries, earn Honeypot |
-| 🧊 Fridge | `FridgeTab` | Track ingredient stock & expiry dates | **[Coming Soon]**
-| 🏪 Shop | `ShopTab` | Decorate restaurant, manage NPCs, view stats |
-| 🛒 Store | `StoreTab` → `ShopBuyView` / `GachaView` | Buy items or pull gacha with Bagel Tokens |
-| 🏆 Collection | `CollectionTab` | Achievements with reward slots; Collection **[Coming Soon]**|
+| ![journal](images/icon/journal.png) Journal | `JournalTab` | Log home-cook or dining entries, earn Honeypot |
+| ![fridge](images/icon/fridge.png) Fridge | `FridgeTab` | Track ingredient stock & expiry dates **[Coming Soon]** |
+| ![myshop](images/icon/myshop.png) My Shop | `ShopTab` | Decorate restaurant, manage NPCs, view stats |
+| ![store](images/icon/store.png) Store | `StoreTab` | Buy items or pull gacha with Bagel Tokens |
+| ![collection](images/icon/achievement.png) Collection | `CollectionTab` | Achievements with reward slots **[Coming Soon]** |
 
 ## Currency
 
 | Currency | Earned by | Spent on |
 |---|---|---|
-| 🍯 Honeypot | Logging entries (+80 cook / +50 dine) | Buying items in Shop |
-| 🥯 Bagel Token | Every 5 entries logged | Gacha pulls (1 token/pull) |
+| ![honeypot](images/currency/honeypot.png) Honeypot | Logging entries (+80 cook / +50 dine) | Buying items in Shop |
+| ![bagel](images/currency/bagel.png) Bagel Token | Every 5 entries logged | Gacha pulls (1 token/pull) |
 
 ## Changelog
+
+### 2026-04-15
+- Edit entry flow: clicking Edit pre-fills `AddModal` with existing data; `updateRecord` patches state by id
+- `RecordModal`: cleaned up UI (no icon, left-aligned details, ingredients table above notes, Edit/Close buttons)
+- `ProfileModal`: Favourite Tags replaced with chips + "+" search overlay, tags loaded from Supabase `core.tag`
+- General UI polish: removed emoji and unnecessary badges from journal cards, header, and preview step
 
 ### 2026-04-14
 - Refactored monolithic `App.jsx` (1388 lines) into a modular structure
@@ -111,4 +117,4 @@ Ricy Hsu
 
 ---
 ## 📅 Last Updated
-April 14, 2026
+April 15, 2026

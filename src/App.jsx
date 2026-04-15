@@ -35,10 +35,9 @@ export default function App(){
 
   useEffect(()=>{
     if(!supabase)return;
-    const db=supabase.schema("core");
     Promise.all([
-      db.from("avatar").select("*"),
-      db.from("avatar_bgcolor").select("*"),
+      supabase.from("avatar").select("*"),
+      supabase.from("avatar_bgcolor").select("*"),
     ]).then(([avRes,bgRes])=>{
       console.log("[avatar]",avRes.data,"err:",avRes.error);
       console.log("[avatar_bgcolor]",bgRes.data,"err:",bgRes.error);
@@ -73,6 +72,14 @@ export default function App(){
       setMyshopFlash(true);
       setTimeout(()=>setMyshopFlash(false),1000);
     }
+  };
+
+  const deleteRecord=id=>setS(prev=>({...prev,records:prev.records.filter(r=>r.id!==id)}));
+
+  const updateRecord=rec=>{
+    setS(prev=>({...prev,records:prev.records.map(r=>r.id===rec.id?{...rec}:r)}));
+    showToast("Entry updated!");
+    setModal(null);setSelRec(null);
   };
 
   const addRecord=rec=>{
@@ -201,9 +208,6 @@ export default function App(){
           <div style={{background:"linear-gradient(135deg,#FFE8D0,#FFCFA0)",borderRadius:18,padding:"4px 9px",display:"flex",alignItems:"center",gap:3,flexShrink:0}}>
             <img src={CURRENCY.bagel.icon} style={{width:22,height:22,objectFit:"contain"}}/><span style={{fontWeight:900,fontSize:13,color:"#904000"}}>{S.bagels}</span>
           </div>
-          {S.streak>0&&<div style={{background:"linear-gradient(135deg,#FFE8D0,#FFD0A0)",borderRadius:13,padding:"3px 7px",display:"flex",alignItems:"center",gap:2,flexShrink:0}}>
-            <span style={{fontSize:10}}>🔥</span><span style={{fontSize:10,fontWeight:900,color:"#C05000"}}>{S.streak}</span>
-          </div>}
         </div>
         {/* Row 2: XP bar */}
         <div>
@@ -219,7 +223,7 @@ export default function App(){
 
       {/* CONTENT */}
       <div className="content-scroll" style={{flex:1,overflowY:"scroll",WebkitOverflowScrolling:"touch",paddingBottom:80,position:"relative",zIndex:1}}>
-        {tab==="journal"    && <JournalTab    S={S} onAdd={()=>setModal("add")} onSel={r=>{setSelRec(r);setModal("record");}}/>}
+        {tab==="journal"    && <JournalTab    S={S} onAdd={()=>setModal("add")} onSel={r=>{setSelRec(r);setModal("record");}} onDelete={deleteRecord}/>}
         {tab==="fridge"     && <FridgeTab     S={S} setS={setS} showToast={showToast}/>}
         {tab==="myshop"     && <ShopTab       S={S} onToggle={togglePlace} shopLv={shopLv} shopLvLabel={shopLvLabel} setS={setS} showToast={showToast}/>}
         {tab==="store"      && <StoreTab      S={S} onGacha={(poolId,count=1)=>{setGachaRes(null);setModal({type:"gacha",poolId,count});}} onBuy={buyItem}/>}
@@ -266,8 +270,9 @@ export default function App(){
       </div>
 
       {modal==="add"         && <AddModal    S={S} onClose={()=>setModal(null)} onSubmit={addRecord}/>}
+      {modal==="edit"        && selRec && <AddModal S={S} onClose={()=>{setModal(null);setSelRec(null);}} onSubmit={updateRecord} editRecord={selRec}/>}
       {modal?.type==="gacha" && <GachaModal  S={S} onClose={()=>setModal(null)} onGacha={()=>doGacha(modal.poolId,modal.count||1)} result={gachaRes} anim={gachaAnim} setResult={setGachaRes} pullCount={modal.count||1}/>}
-      {modal==="record"      && selRec && <RecordModal record={selRec} onClose={()=>setModal(null)}/>}
+      {modal==="record"      && selRec && <RecordModal record={selRec} onClose={()=>setModal(null)} onEdit={r=>{setSelRec(r);setModal("edit");}}/>}
       {showProfile           && <ProfileModal S={S} setS={setS} onClose={()=>setShowProfile(false)} showToast={showToast} avatars={avatars} bgcolors={avatarBgcolors}/>}
     </div>
   );
