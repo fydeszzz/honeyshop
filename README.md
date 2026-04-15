@@ -29,11 +29,22 @@ npm run dev      # starts dev server at localhost:3000
 HoneyShop/
 ├── src/
 │   ├── main.jsx              # React entry point (createRoot)
-│   ├── App.jsx               # Entire app — all components & data tables in one file
+│   ├── App.jsx               # Main shell — state, routing, header, bottom nav
+│   ├── constants.js          # Data tables (items, gacha, tags, achievements…) + design tokens
+│   ├── state.js              # localStorage load/save + defaults
 │   ├── lib/
 │   │   └── supabase.js       # Supabase client (reads VITE_SUPABASE_* env vars)
-│   └── hooks/
-│       └── useAppData.js     # Fetches tag / store / gacha from Supabase on mount
+│   ├── tabs/
+│   │   ├── JournalTab.jsx    # Food journal + record cards
+│   │   ├── FridgeTab.jsx     # Ingredient stock & expiry tracking
+│   │   ├── ShopTab.jsx       # Restaurant view, furniture, NPCs, shop info
+│   │   ├── StoreTab.jsx      # Honeypot shop + gacha pulls
+│   │   └── CollectionTab.jsx # Achievements & rewards
+│   └── modals/
+│       ├── AddModal.jsx      # Multi-step entry form (type → photos → details → confirm)
+│       ├── GachaModal.jsx    # Gacha pull animation & result
+│       ├── ProfileModal.jsx  # Profile editor + avatar/background picker
+│       └── RecordModal.jsx   # Journal entry detail view
 │
 ├── public/
 │   └── images/
@@ -71,22 +82,15 @@ HoneyShop/
 | 🍯 Honeypot | Logging entries (+80 cook / +50 dine) | Buying items in Shop |
 | 🥯 Bagel Token | Every 5 entries logged | Gacha pulls (1 token/pull) |
 
-## Supabase Setup
-
-1. Create a project on [supabase.com](https://supabase.com)
-2. Copy **Project URL** and **anon key** into `.env`:
-   ```
-   VITE_SUPABASE_URL=https://xxxx.supabase.co
-   VITE_SUPABASE_ANON_KEY=eyJ...
-   ```
-3. In Supabase **Settings > Data API**, add `core` to Exposed schemas
-4. In **SQL Editor**, grant read access:
-   ```sql
-   GRANT USAGE ON SCHEMA core TO anon, authenticated;
-   GRANT SELECT ON ALL TABLES IN SCHEMA core TO anon, authenticated;
-   ```
-
 ## Changelog
+
+### 2026-04-14
+- Refactored monolithic `App.jsx` (1388 lines) into a modular structure
+- Extracted all data tables and design tokens into `src/constants.js`
+- Extracted localStorage logic into `src/state.js`
+- Split all tab pages into `src/tabs/` (JournalTab, FridgeTab, ShopTab, StoreTab, CollectionTab)
+- Split all modals into `src/modals/` (AddModal, GachaModal, ProfileModal, RecordModal)
+- Fixed missing `mealIcon` definition (now exported from `constants.js`)
 
 ### 2026-04-12
 - Integrated Supabase `core` schema: `avatar` and `avatar_bgcolor` tables drive profile avatar selection
@@ -107,4 +111,4 @@ Ricy Hsu
 
 ---
 ## 📅 Last Updated
-April 12, 2026
+April 14, 2026
