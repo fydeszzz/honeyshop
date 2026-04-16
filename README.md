@@ -1,4 +1,4 @@
-# ![honeypot](images/currency/honeypot.png) HoneyShop: A Food Journaling App with Gamification
+# <img src="public/images/currency/honeypot.png" width="60"> HoneyShop: A Food Journaling App with Gamification
 ~ Log Meals · Earn Honeypots · Decorate Your Shop ~
 
 ## Features
@@ -69,18 +69,18 @@ HoneyShop/
 
 | Tab | Key Component | Description |
 |---|---|---|
-| ![journal](images/icon/journal.png) Journal | `JournalTab` | Log home-cook or dining entries, earn Honeypot |
-| ![fridge](images/icon/fridge.png) Fridge | `FridgeTab` | Track ingredient stock & expiry dates **[Coming Soon]** |
-| ![myshop](images/icon/myshop.png) My Shop | `ShopTab` | Decorate restaurant, manage NPCs, view stats |
-| ![store](images/icon/store.png) Store | `StoreTab` | Buy items or pull gacha with Bagel Tokens |
-| ![collection](images/icon/achievement.png) Collection | `CollectionTab` | Achievements with reward slots **[Coming Soon]** |
+| <img src="public/images/icon/journal.png" width="32" style="vertical-align:center"> Journal | `JournalTab` | Log home-cook or dining entries, earn Honeypot |
+| <img src="public/images/icon/fridge.png" width="32" style="vertical-align:center"> Fridge | `FridgeTab` | Track ingredient stock & expiry dates **[Coming Soon]** |
+| <img src="public/images/icon/myshop.png" width="32" style="vertical-align:center"> My Shop | `ShopTab` | Decorate restaurant, manage NPCs, view stats |
+| <img src="public/images/icon/store.png" width="32" style="vertical-align:center"> Store | `StoreTab` | Buy items or pull gacha with Bagel Tokens |
+| <img src="public/images/icon/achievement.png" width="32" style="vertical-align:center"> Collection | `CollectionTab` | Achievements with reward slots **[Coming Soon]** |
 
 ## Currency
 
 | Currency | Earned by | Spent on |
 |---|---|---|
-| ![honeypot](images/currency/honeypot.png) Honeypot | Logging entries (+80 cook / +50 dine) | Buying items in Shop |
-| ![bagel](images/currency/bagel.png) Bagel Token | Every 5 entries logged | Gacha pulls (1 token/pull) |
+| <img src="public/images/currency/honeypot.png" width="32" style="vertical-align:center"> Honeypot | Logging entries (+80 cook / +50 dine) | Buying items in Shop |
+| <img src="public/images/currency/bagel.png" width="32" style="vertical-align:center"> Bagel | Earning from achievement or mission | Gacha pulls |
 
 ## Changelog
 
