@@ -34,8 +34,10 @@ HoneyShop/
 │   ├── state.js              # localStorage load/save + defaults
 │   ├── lib/
 │   │   └── supabase.js       # Supabase client (reads VITE_SUPABASE_* env vars)
+│   ├── components/
+│   │   └── Lightbox.jsx      # Full-screen photo viewer (click-to-expand)
 │   ├── tabs/
-│   │   ├── JournalTab.jsx    # Food journal + record cards
+│   │   ├── JournalTab.jsx    # Food journal + filter/sort bar + record cards
 │   │   ├── FridgeTab.jsx     # Ingredient stock & expiry tracking
 │   │   ├── ShopTab.jsx       # Restaurant view, furniture, NPCs, shop info
 │   │   ├── StoreTab.jsx      # Honeypot shop + gacha pulls
@@ -44,14 +46,14 @@ HoneyShop/
 │       ├── AddModal.jsx      # Multi-step entry form (type → photos → details → confirm)
 │       ├── GachaModal.jsx    # Gacha pull animation & result
 │       ├── ProfileModal.jsx  # Profile editor + avatar/background picker
-│       └── RecordModal.jsx   # Journal entry detail view
+│       └── RecordModal.jsx   # Journal entry detail view + save-to-photo
 │
 ├── public/
 │   └── images/
 │       ├── avatars/          # User avatar images (e.g. 01_rabbit.png)
 │       ├── furniture/        # Shop decoration images  {name}_WxH.png
 │       ├── currency/         # In-app currency icons (honeypot, bagel)
-│       └── icon/             # UI icons (setting.png, spatula_click.png, plate.png …)
+│       └── icon/             # UI icons (setting.png, spatula_click.png, plate.png, pin.png …)
 │
 ├── .env                      # VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
 ├── index.html
@@ -83,6 +85,17 @@ HoneyShop/
 | <img src="public/images/currency/bagel.png" width="32" style="vertical-align:center"> Bagel | Earning from achievement or mission | Gacha pulls |
 
 ## Changelog
+
+### 2026-04-17
+- Renamed entry types: "Home" → **Recipe** (orange), "Dining" → **Review** (green) across all cards and modals
+- `RecordModal`: header now shows `{nickname}'s Recipe / Review`; Close button replaced with **Save** (captures card as PNG via html2canvas; Web Share API on mobile, download fallback on desktop)
+- Removed star rating system from Review (dine) entries in add form, card, and detail view
+- Location search replaced with **Photon (OpenStreetMap)** API — real address autocomplete, no API key; custom location fallback when no results found (type + confirm, like tags)
+- Address format corrected to `{number} {street}` order; all `📍` emoji replaced with `pin.png` icon
+- Journal page: added sticky **filter/sort bar** — All / Recipe / Review tabs + Sort dropdown (date newest/oldest + meal time: Breakfast, Brunch, Lunch, Dinner, Afternoon Tea)
+- Meal time list updated: removed Late Night, added Brunch (after Breakfast)
+- Record cards: category badge color-coded; watermark icon (spatula / plate) top-right at 60% opacity; clickable photo thumbnails open full-screen **Lightbox**
+- Added `src/components/Lightbox.jsx` — shared full-screen photo viewer with Esc-to-close
 
 ### 2026-04-15
 - Edit entry flow: clicking Edit pre-fills `AddModal` with existing data; `updateRecord` patches state by id
@@ -117,4 +130,4 @@ Ricy Hsu
 
 ---
 ## 📅 Last Updated
-April 15, 2026
+April 17, 2026

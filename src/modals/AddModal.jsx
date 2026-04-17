@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabase";
-import { T, CURRENCY, CUISINE_TAGS, INGREDIENTS, MEAL_TIMES, MOCK_ADDR } from "../constants";
+import { T, CURRENCY, CUISINE_TAGS, INGREDIENTS, MEAL_TIMES } from "../constants";
 
 export default function AddModal({S,onClose,onSubmit,editRecord}){
   const [type,setType]=useState(editRecord?.type||"cook");
@@ -21,6 +21,7 @@ export default function AddModal({S,onClose,onSubmit,editRecord}){
     _ingMeta:editRecord._ingMeta||{},
   }:{title:"",notes:"",address:"",rating:0,mealTimes:[],tags:[],customTags:[],emoji:"🍳",ingredients:[],servings:{},privacy:"public"});
   const [addrResults,setAddrResults]=useState([]);
+  const [addrSearchDone,setAddrSearchDone]=useState(false);
   const [showTagSearch,setShowTagSearch]=useState(false);
   const [dbTags,setDbTags]=useState(CUISINE_TAGS);
   const setF=(k,v)=>setForm(f=>({...f,[k]:v}));
@@ -115,10 +116,29 @@ export default function AddModal({S,onClose,onSubmit,editRecord}){
   const allTagsForLookup=[...dbTags,...form.customTags];
   const findTag=id=>allTagsForLookup.find(t=>t.id===id);
 
+  const addrTimer=useRef(null);
   const handleAddrInput=val=>{
     setF("address",val);
+    setAddrSearchDone(false);
     if(val.length<2){setAddrResults([]);return;}
-    setAddrResults(MOCK_ADDR.filter(a=>a.toLowerCase().includes(val.toLowerCase())).slice(0,5));
+    clearTimeout(addrTimer.current);
+    addrTimer.current=setTimeout(async()=>{
+      try{
+        const res=await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(val)}&limit=5&lang=en`);
+        const json=await res.json();
+        const places=(json.features||[]).map(f=>{
+          const p=f.properties;
+          const street=p.street&&p.housenumber?`${p.housenumber} ${p.street}`:p.street;
+          return [p.name,street,p.city||p.town||p.village,p.country].filter(Boolean).join(", ");
+        }).filter(Boolean);
+        setAddrResults(places);
+      }catch{setAddrResults([]);}
+      finally{setAddrSearchDone(true);}
+    },400);
+  };
+  const confirmCustomAddr=()=>{
+    setAddrResults([]);
+    setAddrSearchDone(false);
   };
   const handlePhoto=(e)=>{
     Array.from(e.target.files).forEach(file=>{
@@ -279,21 +299,23 @@ export default function AddModal({S,onClose,onSubmit,editRecord}){
               );})}
             </div>
           </div>
-          {type==="dine"&&<div style={{marginBottom:11}}>
-            <div style={{fontWeight:800,color:T.aquaDark,fontSize:11,marginBottom:4}}>Rating</div>
-            <div style={{display:"flex",gap:1}}>{[1,2,3,4,5].map(n=><button key={n} onClick={()=>setF("rating",n)} style={{background:"none",border:"none",fontSize:22,color:n<=form.rating?T.gold:T.aquaLight,padding:0}}>★</button>)}</div>
-          </div>}
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:4}}>
             Location {type==="cook"?<span style={{color:T.pink,fontWeight:700}}>(Dining out only)</span>:<span style={{color:T.textLight,fontWeight:600}}>(optional)</span>}
           </div>
           <div style={{position:"relative",marginBottom:addrResults.length?0:11,opacity:type==="cook"?0.38:1,pointerEvents:type==="cook"?"none":"auto"}}>
             <input value={form.address} onChange={e=>handleAddrInput(e.target.value)} placeholder="Search address..." style={{paddingLeft:36,background:type==="cook"?T.snow:undefined,cursor:type==="cook"?"not-allowed":undefined}}/>
-            <span style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",fontSize:14}}>📍</span>
-            <div style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",fontSize:9,color:T.textLight,fontWeight:700}}>Google Maps</div>
+            <img src="/images/icon/pin.png" style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",width:15,height:15,objectFit:"contain"}}/>
           </div>
-          {addrResults.length>0&&<div style={{background:T.white,border:`2px solid ${T.aquaLight}`,borderRadius:14,marginBottom:11,overflow:"hidden",boxShadow:`0 4px 14px rgba(61,216,232,.12)`}}>
-            {addrResults.map(a=><div key={a} onClick={()=>{setF("address",a);setAddrResults([]);}} style={{padding:"9px 14px",cursor:"pointer",fontSize:13,color:T.textDark,fontWeight:600,borderBottom:`1px solid ${T.aquaLight}`}}>📍 {a}</div>)}
-          </div>}
+          {(addrResults.length>0||(addrSearchDone&&form.address.length>=2&&addrResults.length===0))&&(
+            <div style={{background:T.white,border:`2px solid ${T.aquaLight}`,borderRadius:14,marginBottom:11,overflow:"hidden",boxShadow:`0 4px 14px rgba(61,216,232,.12)`}}>
+              {addrResults.map(a=><div key={a} onClick={()=>{setF("address",a);setAddrResults([]);setAddrSearchDone(false);}} style={{display:"flex",alignItems:"center",gap:6,padding:"9px 14px",cursor:"pointer",fontSize:13,color:T.textDark,fontWeight:600,borderBottom:`1px solid ${T.aquaLight}`}}><img src="/images/icon/pin.png" style={{width:13,height:13,objectFit:"contain",flexShrink:0}}/>{a}</div>)}
+              {addrSearchDone&&addrResults.length===0&&(
+                <div onClick={confirmCustomAddr} style={{display:"flex",alignItems:"center",gap:6,padding:"9px 14px",cursor:"pointer",fontSize:13,color:T.aquaDark,fontWeight:700,background:T.aquaPale}}>
+                  <span style={{fontSize:15,fontWeight:900}}>+</span> Use "{form.address}"
+                </div>
+              )}
+            </div>
+          )}
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:4}}>
             Notes <span style={{fontWeight:600,color:form.notes.length>=30?T.aquaDark:T.textLight}}>({form.notes.length}/30 words required)</span>
           </div>
@@ -339,10 +361,8 @@ export default function AddModal({S,onClose,onSubmit,editRecord}){
           </div>
 
           {/* Address (dine) */}
-          {form.address&&<div style={{color:T.textMid,fontWeight:700,fontSize:13,marginBottom:12}}>📍 {form.address}</div>}
+          {form.address&&<div style={{display:"flex",alignItems:"center",gap:4,color:T.textMid,fontWeight:700,fontSize:13,marginBottom:12}}><img src="/images/icon/pin.png" style={{width:14,height:14,objectFit:"contain",flexShrink:0}}/>{form.address}</div>}
 
-          {/* Rating (dine) */}
-          {form.rating>0&&<div style={{color:T.gold,fontSize:16,marginBottom:12}}>{"★".repeat(form.rating)}{"☆".repeat(5-form.rating)}</div>}
 
           {/* Ingredients */}
           {form.ingredients.length>0&&<>

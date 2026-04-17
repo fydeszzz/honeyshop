@@ -272,7 +272,7 @@ export default function App(){
       {modal==="add"         && <AddModal    S={S} onClose={()=>setModal(null)} onSubmit={addRecord}/>}
       {modal==="edit"        && selRec && <AddModal S={S} onClose={()=>{setModal(null);setSelRec(null);}} onSubmit={updateRecord} editRecord={selRec}/>}
       {modal?.type==="gacha" && <GachaModal  S={S} onClose={()=>setModal(null)} onGacha={()=>doGacha(modal.poolId,modal.count||1)} result={gachaRes} anim={gachaAnim} setResult={setGachaRes} pullCount={modal.count||1}/>}
-      {modal==="record"      && selRec && <RecordModal record={selRec} onClose={()=>setModal(null)} onEdit={r=>{setSelRec(r);setModal("edit");}}/>}
+      {modal==="record"      && selRec && <RecordModal record={selRec} onClose={()=>setModal(null)} onEdit={r=>{setSelRec(r);setModal("edit");}} nickname={S.profile.nickname}/>}
       {showProfile           && <ProfileModal S={S} setS={setS} onClose={()=>setShowProfile(false)} showToast={showToast} avatars={avatars} bgcolors={avatarBgcolors}/>}
     </div>
   );

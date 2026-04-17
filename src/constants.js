@@ -125,12 +125,12 @@ export const ACHIEVEMENTS=[
 
 export const MEAL_FILTERS=[
   {id:"all",label:"All"},{id:"cook",label:"🍳 Home"},{id:"dine",label:"🍽️ Dining"},
-  {id:"Breakfast",label:"☀️ Breakfast"},{id:"Lunch",label:"🌤️ Lunch"},
-  {id:"Dinner",label:"🌙 Dinner"},{id:"Late Night",label:"🌃 Late Night"},
+  {id:"Breakfast",label:"☀️ Breakfast"},{id:"Brunch",label:"🌅 Brunch"},
+  {id:"Lunch",label:"🌤️ Lunch"},{id:"Dinner",label:"🌙 Dinner"},
   {id:"Afternoon Tea",label:"☕ Tea"},
 ];
-export const MEAL_TIMES=["Breakfast","Lunch","Dinner","Late Night","Afternoon Tea"];
-export const mealIcon={Breakfast:"☀️",Lunch:"🌤️",Dinner:"🌙","Late Night":"🌃","Afternoon Tea":"☕"};
+export const MEAL_TIMES=["Breakfast","Brunch","Lunch","Dinner","Afternoon Tea"];
+export const mealIcon={Breakfast:"☀️",Brunch:"🌅",Lunch:"🌤️",Dinner:"🌙","Afternoon Tea":"☕"};
 export const NPC_AVATARS=["👦","👧","🧑","👱","🧔","🧓","👴","👵","🧙","🧚","🧜","🦸","🧑‍🍳","🧑‍🎨","🤖","👻","🐱","🐶","🐰","🦊","🐻","🐼","🦁","🐸"];
 export const NPC_LINES=["This smells amazing!","Table for two?","I'll have the usual!","Best spot in town!","Is the special ready?","Cozy place!","Can I see the menu?","The food here is 💯","When does kitchen open?","Love this restaurant!"];
 export const MOCK_ADDR=["123 Main St, San Francisco, CA","456 Melrose Ave, Los Angeles, CA","789 5th Ave, New York, NY","321 Michigan Ave, Chicago, IL"];
