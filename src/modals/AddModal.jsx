@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { supabase } from "../lib/supabase";
 import { T, CURRENCY, CUISINE_TAGS, INGREDIENTS, MEAL_TIMES } from "../constants";
 
@@ -103,10 +103,12 @@ export default function AddModal({S,onClose,onSubmit,editRecord}){
   };
   const isQtyValid=qty=>!qty||/^\d+(\.\d*)?$/.test(qty);
 
-  const availableTags=dbTags.filter(t=>type==="cook"?!t.dineoutonly:true);
-  const sortedTags=[...availableTags].sort((a,b)=>(S.tagUsage[b.id]||0)-(S.tagUsage[a.id]||0));
-  const hasAnyTagUsage=Object.keys(S.tagUsage||{}).length>0;
-  const suggestedTags=(hasAnyTagUsage?sortedTags:[...availableTags]).slice(0,15);
+  const suggestedTags=useMemo(()=>{
+    const available=dbTags.filter(t=>type==="cook"?!t.dineoutonly:true);
+    const hasUsage=Object.keys(S.tagUsage||{}).length>0;
+    if(hasUsage)return [...available].sort((a,b)=>(S.tagUsage[b.id]||0)-(S.tagUsage[a.id]||0)).slice(0,15);
+    return available.slice(0,15);
+  },[dbTags,type,S.tagUsage]);
   const toggleTag=id=>setF("tags",form.tags.includes(id)?form.tags.filter(t=>t!==id):[...form.tags,id]);
   const addCustomTag=label=>{
     const id="custom_"+label.trim().toLowerCase().replace(/\s+/g,"_");

@@ -9,6 +9,6 @@ export const defaults=()=>({
 
 export const fmtDate=iso=>{const d=new Date(iso);return`${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}-${d.getFullYear()}`;};
 
-export function load(){try{const s=localStorage.getItem("fb_v5");const d=s?{...defaults(),...JSON.parse(s)}:defaults();if(d.achievements.length>0&&typeof d.achievements[0]==="string")d.achievements=d.achievements.map(id=>({id,unlockedAt:new Date().toISOString()}));if(d.profile&&d.profile.avatarEmoji&&!d.profile.avatarUrl){d.profile={...d.profile,avatarUrl:"",avatarBgHex:"#B8F3F9"};}return d;}catch{return defaults();}}
+export function load(){try{const s=localStorage.getItem("fb_v5");const d=s?{...defaults(),...JSON.parse(s)}:defaults();if(d.achievements?.length>0&&typeof d.achievements[0]==="string")d.achievements=d.achievements.map(id=>({id,unlockedAt:new Date().toISOString()}));if(d.profile&&d.profile.avatarEmoji&&!d.profile.avatarUrl){d.profile={...d.profile,avatarUrl:"",avatarBgHex:"#B8F3F9"};}return d;}catch{return defaults();}}
 
-export function save(s){try{localStorage.setItem("fb_v5",JSON.stringify(s));}catch{}}
+export function save(s){try{localStorage.setItem("fb_v5",JSON.stringify(s));}catch(e){if(e?.name==="QuotaExceededError"||e?.name==="NS_ERROR_DOM_QUOTA_REACHED"){console.warn("[HoneyShop] Storage full");window.dispatchEvent(new CustomEvent("hs:storage-full"));}}}

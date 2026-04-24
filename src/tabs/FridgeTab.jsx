@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { T } from "../constants";
 
 const FRIDGE_EMOJIS=["🥩","🥚","🥦","🧅","🧄","🥕","🍅","🫚","🥛","🧀","🐟","🍗","🥬","🌽","🍋","🫙","🧈","🥜","🌾","🍄"];
@@ -11,7 +11,10 @@ export default function FridgeTab({S,setS,showToast}){
   const removeIng=id=>setS(prev=>({...prev,fridge:prev.fridge.filter(i=>i.id!==id)}));
   const chgQty=(id,d)=>setS(prev=>({...prev,fridge:prev.fridge.map(i=>i.id===id?{...i,qty:Math.max(0,i.qty+d)}:i).filter(i=>i.qty>0)}));
   const today=new Date();
-  const expiringSoon=S.fridge.filter(i=>i.expiry&&(new Date(i.expiry)-today)/(1000*60*60*24)<=3);
+  const expiringSoon=useMemo(()=>{
+    const now=new Date();
+    return S.fridge.filter(i=>i.expiry&&(new Date(i.expiry)-now)/(1000*60*60*24)<=3);
+  },[S.fridge]);
   return(
     <div style={{padding:"13px 14px",animation:"fadeSlide .3s ease"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>

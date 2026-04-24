@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "./lib/supabase";
 import { T, CURRENCY, ACHIEVEMENTS, GACHA_TABLE, GACHA_BAGEL_PRICE, STORE_ITEMS } from "./constants";
 import { load, save } from "./state";
@@ -12,6 +12,7 @@ import AddModal      from "./modals/AddModal";
 import GachaModal    from "./modals/GachaModal";
 import RecordModal   from "./modals/RecordModal";
 
+let _avatarsFetched=false;
 export default function App(){
   const [S,setS_raw]=useState(load);
   const [tab,setTab]=useState("journal");
@@ -33,14 +34,15 @@ export default function App(){
     }
   },[]);
 
+  const showToast=useCallback((msg,type="green")=>{setToast({msg,type});setTimeout(()=>setToast(null),2600);},[]);
+
   useEffect(()=>{
-    if(!supabase)return;
+    if(!supabase||_avatarsFetched)return;
+    _avatarsFetched=true;
     Promise.all([
       supabase.from("avatar").select("*"),
       supabase.from("avatar_bgcolor").select("*"),
     ]).then(([avRes,bgRes])=>{
-      console.log("[avatar]",avRes.data,"err:",avRes.error);
-      console.log("[avatar_bgcolor]",bgRes.data,"err:",bgRes.error);
       if(avRes.data){
         const active=avRes.data.filter(a=>a.avatar_active).map(a=>({
           ...a,
@@ -51,10 +53,16 @@ export default function App(){
       if(bgRes.data&&bgRes.data.length){
         setAvatarBgcolors(bgRes.data.map(c=>({...c,avatar_bg_hex:c.avatar_bg_hex?.startsWith("#")?c.avatar_bg_hex:`#${c.avatar_bg_hex}`})));
       }
-    }).catch(err=>console.warn("[avatars]",err.message));
-  },[]);
+    }).catch(()=>showToast("Avatar load failed, using defaults","red"));
+  },[showToast]);
 
-  const setS=upd=>{
+  useEffect(()=>{
+    const handler=()=>showToast("Storage full — oldest data may not be saved ⚠️","red");
+    window.addEventListener("hs:storage-full",handler);
+    return()=>window.removeEventListener("hs:storage-full",handler);
+  },[showToast]);
+
+  const setS=useCallback(upd=>{
     setS_raw(prev=>{
       const next=typeof upd==="function"?upd(prev):upd;
       const newAchs=ACHIEVEMENTS.filter(a=>!next.achievements.some(x=>x.id===a.id)&&a.cond(next)).map(a=>({id:a.id,unlockedAt:new Date().toISOString()}));
@@ -63,35 +71,37 @@ export default function App(){
       if(newAchs.length){const a=ACHIEVEMENTS.find(x=>x.id===newAchs[0].id);setTimeout(()=>showToast(`🏅 Achievement: ${a.name}!`,"gold"),700);}
       return final;
     });
-  };
-  const showToast=(msg,type="green")=>{setToast({msg,type});setTimeout(()=>setToast(null),2600);};
+  },[showToast]);
 
-  const handleMyshopClick=()=>{
+  const handleMyshopClick=useCallback(()=>{
     setTab("myshop");
     if(!myshopFlash){
       setMyshopFlash(true);
       setTimeout(()=>setMyshopFlash(false),1000);
     }
-  };
+  },[myshopFlash]);
 
-  const deleteRecord=id=>setS(prev=>({...prev,records:prev.records.filter(r=>r.id!==id)}));
+  const deleteRecord=useCallback(id=>setS(prev=>({...prev,records:prev.records.filter(r=>r.id!==id)})),[setS]);
 
-  const updateRecord=rec=>{
+  const updateRecord=useCallback(rec=>{
     setS(prev=>({...prev,records:prev.records.map(r=>r.id===rec.id?{...rec}:r)}));
     showToast("Entry updated!");
     setModal(null);setSelRec(null);
-  };
+  },[setS,showToast]);
 
-  const addRecord=rec=>{
+  const addRecord=useCallback(rec=>{
     const earned=rec.type==="cook"?80:50;
     const today=new Date().toDateString();
-    const bagelBonus=(S.records.length+1)%5===0?1:0;
+    const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+    const yesterdayStr=yesterday.toDateString();
+    const newCount=S.records.length+1;
+    const bagelBonus=newCount%5===0?1:0;
     setS(prev=>{
-      const newCount=prev.records.length+1;
-      const bonus=newCount%5===0?1:0;
+      const pNewCount=prev.records.length+1;
+      const bonus=pNewCount%5===0?1:0;
       const newTagUsage={...prev.tagUsage};
       rec.tags?.forEach(t=>{newTagUsage[t]=(newTagUsage[t]||0)+1;});
-      const consec=prev.lastDate===new Date(Date.now()-86400000).toDateString();
+      const consec=prev.lastDate===yesterdayStr;
       const newStreak=prev.lastDate===today?prev.streak:consec?prev.streak+1:1;
       return{...prev,
         records:[{...rec,id:Date.now(),earned,date:new Date().toISOString()},...prev.records],
@@ -103,16 +113,16 @@ export default function App(){
     });
     showToast(bagelBonus?`+${earned} 🍯  +1 🥯 bonus!`:`+${earned} 🍯 saved!`);
     setModal(null);
-  };
+  },[S.records.length,setS,showToast]);
 
-  const buyItem=item=>{
+  const buyItem=useCallback(item=>{
     if(S.currency<item.price){showToast("Not enough Honeypot! 🍯","red");return;}
     if(S.owned.includes(item.id)){showToast("Already owned!","red");return;}
     setS(prev=>({...prev,currency:prev.currency-item.price,owned:[...prev.owned,item.id]}));
     showToast(`🛍️ ${item.name} purchased!`,"gold");
-  };
+  },[S.currency,S.owned,setS,showToast]);
 
-  const doGacha=(poolId,count=1)=>{
+  const doGacha=useCallback((poolId,count=1)=>{
     const cost=GACHA_BAGEL_PRICE*count;
     if(S.bagels<cost){showToast("Not enough Bagels 🥯","red");return;}
     setGachaAnim(true);setGachaRes(null);
@@ -138,12 +148,14 @@ export default function App(){
       });
       setGachaAnim(false);
     },1300);
-  };
+  },[S.bagels,setS,showToast]);
 
-  const togglePlace=id=>setS(prev=>({...prev,placed:prev.placed.includes(id)?prev.placed.filter(x=>x!==id):[...prev.placed,id]}));
-  const shopLv=Math.floor(S.popularity/100)+1;
-  const lvLabels=["Apprentice Cook","Rising Chef","Local Favorite","Neighborhood Gem","Popular Spot","Food Icon","Legendary Eatery"];
-  const shopLvLabel=lvLabels[Math.min(shopLv-1,6)];
+  const togglePlace=useCallback(id=>setS(prev=>({...prev,placed:prev.placed.includes(id)?prev.placed.filter(x=>x!==id):[...prev.placed,id]})),[setS]);
+  const shopLv=useMemo(()=>Math.floor(S.popularity/100)+1,[S.popularity]);
+  const shopLvLabel=useMemo(()=>{
+    const lvLabels=["Apprentice Cook","Rising Chef","Local Favorite","Neighborhood Gem","Popular Spot","Food Icon","Legendary Eatery"];
+    return lvLabels[Math.min(shopLv-1,6)];
+  },[shopLv]);
 
   return(
     <div style={{fontFamily:"'Nunito',sans-serif",background:`linear-gradient(160deg,${T.aquaPale} 0%,${T.white} 50%,${T.pinkPale} 100%)`,height:"min(100dvh, 852px)",maxWidth:393,margin:"0 auto",position:"relative",display:"flex",flexDirection:"column",overflow:"hidden"}}>

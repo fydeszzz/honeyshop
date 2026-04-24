@@ -7,7 +7,7 @@ export default function RecordModal({record,onClose,onEdit,nickname}){
   const [saving,setSaving]=useState(false);
   const [lightbox,setLightbox]=useState(null);
   const d=new Date(record.date);
-  const dateStr=`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,"0")}`;
+  const dateStr=`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
   const isCook=record.type==="cook";
   const categoryLabel=isCook?"Recipe":"Review";
   const accentColor=isCook?"#E65100":"#2E7D32";
