@@ -86,6 +86,9 @@ HoneyShop/
 
 ## Changelog
 
+### 2026-04-23
+- Bug fixed
+
 ### 2026-04-17
 - Renamed entry types: "Home" → **Recipe** (orange), "Dining" → **Review** (green) across all cards and modals
 - `RecordModal`: header now shows `{nickname}'s Recipe / Review`; Close button replaced with **Save** (captures card as PNG via html2canvas; Web Share API on mobile, download fallback on desktop)
@@ -131,17 +134,3 @@ Ricy Hsu
 ---
 ## 📅 Last Updated
 April 23, 2026
-
-### 2026-04-23
-- **Bug fixes**
-  - `supabase.js`: null guard restored — client now returns `null` when env vars are missing, making all `if(!supabase)` fallbacks functional
-  - `state.js`: achievement migration uses optional chaining (`?.length`) to prevent crash on corrupted state
-  - `App.jsx`: `addRecord` bagel bonus toast now consistent with state updater; DST-safe streak using `setDate(getDate()-1)` instead of subtracting `86400000ms`
-  - `RecordModal.jsx`: date display zero-padded for month, day, and hour
-- **Performance**
-  - `App.jsx`: 10 callbacks wrapped with `useCallback`; `shopLv` / `shopLvLabel` memoized with `useMemo`
-  - `FridgeTab.jsx`: `expiringSoon` filter memoized — no longer recalculates on every form keystroke
-  - `AddModal.jsx`: `suggestedTags` sort+filter memoized with `useMemo`
-- **Reliability**
-  - `App.jsx`: avatar fetch de-duplicated via module-level flag; failed fetch shows toast instead of silent `console.warn`
-  - `state.js`: `QuotaExceededError` now dispatches `hs:storage-full` custom event; `App.jsx` listens and shows user-facing toast
