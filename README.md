@@ -35,7 +35,9 @@ HoneyShop/
 │   ├── lib/
 │   │   └── supabase.js       # Supabase client (reads VITE_SUPABASE_* env vars)
 │   ├── components/
-│   │   └── Lightbox.jsx      # Full-screen photo viewer (click-to-expand)
+│   │   ├── Lightbox.jsx          # Full-screen photo viewer (click-to-expand)
+│   │   ├── AchievementToast.jsx  # Push-notification style achievement popup
+│   │   └── DevPanel.jsx          # Dev-only cheat panel (hidden in production)
 │   ├── tabs/
 │   │   ├── JournalTab.jsx    # Food journal + filter/sort bar + record cards
 │   │   ├── FridgeTab.jsx     # Ingredient stock & expiry tracking
@@ -86,46 +88,36 @@ HoneyShop/
 
 ## Changelog
 
+### 2026-05-07
+- Added **Achievement Toast** — push-notification style popup replacing the old gold toast; slides in from top, stays 3 seconds, auto-dismisses
+- Toast shows reward image with rarity-colored border (items) or gold border with quantity (currency rewards)
+- 5 achievements updated to give currency rewards (honeypot / bagel) instead of items
+- Added **DevPanel** (dev-only) — floating cheat panel for triggering achievements and adjusting currency / streak during testing
+
 ### 2026-04-23
-- Bug fixed
+- Bug fixes: Supabase null guard, DST-safe streak calculation, zero-padded date display
+- Performance: key callbacks memoized with `useCallback` / `useMemo`; storage quota error now shows user-facing toast
 
 ### 2026-04-17
-- Renamed entry types: "Home" → **Recipe** (orange), "Dining" → **Review** (green) across all cards and modals
-- `RecordModal`: header now shows `{nickname}'s Recipe / Review`; Close button replaced with **Save** (captures card as PNG via html2canvas; Web Share API on mobile, download fallback on desktop)
-- Removed star rating system from Review (dine) entries in add form, card, and detail view
-- Location search replaced with **Photon (OpenStreetMap)** API — real address autocomplete, no API key; custom location fallback when no results found (type + confirm, like tags)
-- Address format corrected to `{number} {street}` order; all `📍` emoji replaced with `pin.png` icon
-- Journal page: added sticky **filter/sort bar** — All / Recipe / Review tabs + Sort dropdown (date newest/oldest + meal time: Breakfast, Brunch, Lunch, Dinner, Afternoon Tea)
-- Meal time list updated: removed Late Night, added Brunch (after Breakfast)
-- Record cards: category badge color-coded; watermark icon (spatula / plate) top-right at 60% opacity; clickable photo thumbnails open full-screen **Lightbox**
-- Added `src/components/Lightbox.jsx` — shared full-screen photo viewer with Esc-to-close
+- Entry types renamed: **Recipe** (home cook) and **Review** (dining out)
+- Location search replaced with **Photon (OpenStreetMap)** — real address autocomplete, no API key required
+- Save button on RecordModal exports entry card as PNG (Web Share on mobile, download on desktop)
+- Journal: sticky **filter/sort bar** added (Recipe / Review tabs + sort by date or meal time)
+- Photo thumbnails open full-screen **Lightbox** viewer
 
 ### 2026-04-15
-- Edit entry flow: clicking Edit pre-fills `AddModal` with existing data; `updateRecord` patches state by id
-- `RecordModal`: cleaned up UI (no icon, left-aligned details, ingredients table above notes, Edit/Close buttons)
-- `ProfileModal`: Favourite Tags replaced with chips + "+" search overlay, tags loaded from Supabase `core.tag`
-- General UI polish: removed emoji and unnecessary badges from journal cards, header, and preview step
+- Edit entry flow implemented — Edit pre-fills AddModal with existing data
+- ProfileModal: Favourite Tags replaced with chip search overlay, loaded from Supabase
 
 ### 2026-04-14
-- Refactored monolithic `App.jsx` (1388 lines) into a modular structure
-- Extracted all data tables and design tokens into `src/constants.js`
-- Extracted localStorage logic into `src/state.js`
-- Split all tab pages into `src/tabs/` (JournalTab, FridgeTab, ShopTab, StoreTab, CollectionTab)
-- Split all modals into `src/modals/` (AddModal, GachaModal, ProfileModal, RecordModal)
-- Fixed missing `mealIcon` definition (now exported from `constants.js`)
+- Refactored `App.jsx` into modular structure — tabs into `src/tabs/`, modals into `src/modals/`, data into `src/constants.js`, localStorage into `src/state.js`
 
 ### 2026-04-12
-- Integrated Supabase `core` schema: `avatar` and `avatar_bgcolor` tables drive profile avatar selection
-- Avatar picker refactored into a pop-up with two tabs (Avatar / Background Color)
-- Profile avatar stored as `avatarUrl` + `avatarBgHex` in app state (replaces `avatarEmoji`)
-- Header XP bar moved to full-width second row below avatar/name/currency
-- Settings emoji replaced with `setting.png` icon throughout
-- Added `src/lib/supabase.js` and `src/hooks/useAppData.js` for DB integration
+- Supabase integration: avatar and background color loaded from `core` schema
+- Header XP bar moved to full-width second row
 
 ### 2026-04-08
-- Initial release with hardcoded fallback data
-- Journal, Shop, Store (gacha), Fridge, Collection tabs
-- AddModal: type selection, ingredient search, meal time multi-select, location lock for Home Cook
+- Initial release: Journal, Shop, Store (gacha), Fridge, Collection tabs
 
 ---
 ## 👤 Author
@@ -133,4 +125,4 @@ Ricy Hsu
 
 ---
 ## 📅 Last Updated
-April 23, 2026
+May 7, 2026
