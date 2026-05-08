@@ -1,4 +1,4 @@
-import { CURRENCY, RARITY } from "../constants";
+import { RARITY } from "../constants";
 
 export default function AchievementToast({ achievement }) {
   if (!achievement) return null;
@@ -8,10 +8,6 @@ export default function AchievementToast({ achievement }) {
   const isItem = reward && !isCurrency;
 
   const rarityStyle = isItem ? (RARITY[reward.rarity] || RARITY.Common) : null;
-
-  const currencyImg = isCurrency
-    ? (reward.type === "honeypot" ? CURRENCY.honeypot.icon : CURRENCY.bagel.icon)
-    : null;
 
   return (
     <div style={{
@@ -89,9 +85,9 @@ export default function AchievementToast({ achievement }) {
               overflow: "hidden",
             }}>
               <img
-                src={isCurrency ? currencyImg : `/img/${achievement.id}.png`}
-                alt={isCurrency ? reward.type : (reward.name || achievement.id)}
-                style={{ width: "80%", height: "80%", objectFit: "contain" }}
+                src={reward.icon}
+                alt={isCurrency ? reward.type : (reward.name || "reward")}
+                style={{width:"80%",height:"80%",objectFit:"contain"}}
               />
             </div>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { supabase } from "./lib/supabase";
 import { T, CURRENCY, ACHIEVEMENTS, GACHA_TABLE, GACHA_BAGEL_PRICE, STORE_ITEMS } from "./constants";
 import { load, save } from "./state";
@@ -28,6 +28,8 @@ export default function App(){
   const [achToast,setAchToast]=useState(null);
   const [avatars,setAvatars]=useState([]);
   const [avatarBgcolors,setAvatarBgcolors]=useState([]);
+  const [achievements,setAchievements]=useState([]);
+  const achievementsRef=useRef([]);
 
   useEffect(()=>{
     if(!document.querySelector('link[href*="Nunito"]')){
@@ -65,6 +67,52 @@ export default function App(){
   },[showToast]);
 
   useEffect(()=>{
+    if(!supabase)return;
+    let itemsById={};
+    supabase.from("item").select("*").then(({data,error})=>{
+      if(error){console.warn("[ach] item fetch error",error);return;}
+      console.log("[ach] item rows:",data?.length,"sample:",data?.[0]);
+      if(data?.length)itemsById=Object.fromEntries(data.map(it=>[it.item_id,it]));
+    });
+    supabase.from("achievement").select("*").order("achievement_id").then(({data,error})=>{
+      if(error){console.error("[ach] fetch error",error);return;}
+      console.log("[ach] achievement rows:",data?.length,"sample:",data?.[0]);
+      if(!data?.length){console.warn("[ach] no rows — check RLS/permissions on core.achievement");return;}
+      const condByName=Object.fromEntries(ACHIEVEMENTS.map(a=>[a.name.toLowerCase().trim(),a]));
+      const merged=data.map(row=>{
+        const local=condByName[row.achievement_en?.toLowerCase().trim()];
+        let reward;
+        if(row.reward_type==="currency"){
+          const isBagel=row.reward_currency_id===2;
+          reward={
+            type:isBagel?"bagel":"honeypot",
+            amount:row.reward_qty,
+            icon:isBagel?"/images/currency/bagel.png":"/images/currency/honeypot.png",
+          };
+        }else{
+          const item=itemsById[row.reward_item_id];
+          reward={
+            name:item?.item_name_en??item?.item_name??"",
+            icon:item?.item_image_url??item?.item_image??`/images/icon/item_${row.reward_item_id}.png`,
+            rarity:item?.rarity??"Common",
+            qty:row.reward_qty,
+          };
+        }
+        return{
+          id:local?.id??`ach_${row.achievement_id}`,
+          name:row.achievement_en,
+          desc:row.achievement_description,
+          reward,
+          cond:local?.cond??null,
+        };
+      });
+      console.log("[ach] merged count:",merged.length);
+      setAchievements(merged);
+      achievementsRef.current=merged;
+    });
+  },[]);
+
+  useEffect(()=>{
     const handler=()=>showToast("Storage full — oldest data may not be saved ⚠️","red");
     window.addEventListener("hs:storage-full",handler);
     return()=>window.removeEventListener("hs:storage-full",handler);
@@ -73,13 +121,21 @@ export default function App(){
   const setS=useCallback(upd=>{
     setS_raw(prev=>{
       const next=typeof upd==="function"?upd(prev):upd;
-      const newAchs=ACHIEVEMENTS.filter(a=>!next.achievements.some(x=>x.id===a.id)&&a.cond(next)).map(a=>({id:a.id,unlockedAt:new Date().toISOString()}));
-      const final=newAchs.length?{...next,achievements:[...next.achievements,...newAchs]}:next;
+      const achs=achievementsRef.current;
+      const newAchs=achs.filter(a=>!next.achievements.some(x=>x.id===a.id)&&a.cond?.(next)).map(a=>({id:a.id,unlockedAt:new Date().toISOString()}));
+      let final=newAchs.length?{...next,achievements:[...next.achievements,...newAchs]}:next;
+      if(newAchs.length){
+        for(const e of newAchs){
+          const a=achs.find(x=>x.id===e.id);
+          if(a?.reward?.type==="honeypot")final={...final,currency:final.currency+(a.reward.amount||0)};
+          else if(a?.reward?.type==="bagel")final={...final,bagels:final.bagels+(a.reward.amount||0)};
+        }
+      }
       save(final);
-      if(newAchs.length){const a=ACHIEVEMENTS.find(x=>x.id===newAchs[0].id);setTimeout(()=>showAchievement(a),700);}
+      if(newAchs.length){const a=achs.find(x=>x.id===newAchs[0].id);setTimeout(()=>showAchievement(a),700);}
       return final;
     });
-  },[showToast,showAchievement]);
+  },[showAchievement]);
 
   const handleMyshopClick=useCallback(()=>{
     setTab("myshop");
@@ -251,7 +307,7 @@ export default function App(){
         {tab==="fridge"     && <FridgeTab     S={S} setS={setS} showToast={showToast}/>}
         {tab==="myshop"     && <ShopTab       S={S} onToggle={togglePlace} shopLv={shopLv} shopLvLabel={shopLvLabel} setS={setS} showToast={showToast}/>}
         {tab==="store"      && <StoreTab      S={S} onGacha={(poolId,count=1)=>{setGachaRes(null);setModal({type:"gacha",poolId,count});}} onBuy={buyItem}/>}
-        {tab==="collection" && <CollectionTab S={S}/>}
+        {tab==="collection" && <CollectionTab S={S} achievements={achievements}/>}
       </div>
 
       {/* BOTTOM NAV */}
@@ -298,7 +354,7 @@ export default function App(){
       {modal?.type==="gacha" && <GachaModal  S={S} onClose={()=>setModal(null)} onGacha={()=>doGacha(modal.poolId,modal.count||1)} result={gachaRes} anim={gachaAnim} setResult={setGachaRes} pullCount={modal.count||1}/>}
       {modal==="record"      && selRec && <RecordModal record={selRec} onClose={()=>setModal(null)} onEdit={r=>{setSelRec(r);setModal("edit");}} nickname={S.profile.nickname}/>}
       {showProfile           && <ProfileModal S={S} setS={setS} onClose={()=>setShowProfile(false)} showToast={showToast} avatars={avatars} bgcolors={avatarBgcolors}/>}
-      <DevPanel showAchievement={showAchievement} showToast={showToast} setS={setS}/>
+      <DevPanel showAchievement={showAchievement} showToast={showToast} setS={setS} achievements={achievements}/>
     </div>
   );
 }

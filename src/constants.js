@@ -104,7 +104,7 @@ export const INGREDIENTS=[
   {id:"flour",  name:"Flour",         emoji:"🌾",unit:"g",    food_type:"staple"},
 ];
 
-/* ── ACHIEVEMENTS TABLE (with reward slots) ─────────────── */
+/* ── ACHIEVEMENTS — name+desc are fallbacks; DB overrides on load ── */
 export const ACHIEVEMENTS=[
   {id:"first_cook", icon:"🍳",name:"First Dish",      desc:"Log your first home-cooked meal",   reward:{icon:"🥄",name:"Wooden Spoon",   rarity:"Common"},   cond:s=>s.records.filter(r=>r.type==="cook").length>=1},
   {id:"first_dine", icon:"🍽️",name:"First Outing",   desc:"Log your first dining experience",   reward:{icon:"🍽️",name:"Table Setting",  rarity:"Common"},   cond:s=>s.records.filter(r=>r.type==="dine").length>=1},

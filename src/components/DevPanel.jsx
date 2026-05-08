@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { ACHIEVEMENTS } from "../constants";
 
-export default function DevPanel({ showAchievement, showToast, setS }) {
+export default function DevPanel({ showAchievement, showToast, setS, achievements = [] }) {
   const [open, setOpen] = useState(false);
 
   if (!import.meta.env.DEV) return null;
@@ -72,13 +71,25 @@ export default function DevPanel({ showAchievement, showToast, setS }) {
 
           {/* Achievement fire section */}
           <div style={{ color: "#aaa", fontSize: 10, fontWeight: 800, letterSpacing: 1, marginBottom: 6, textTransform: "uppercase" }}>
-            Fire Achievement Toast
+            Fire Achievement Toast ({achievements.length})
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {ACHIEVEMENTS.map(a => (
+            {achievements.map(a => (
               <button
                 key={a.id}
-                onClick={() => showAchievement(a)}
+                onClick={() => {
+                  showAchievement(a);
+                  setS(prev => {
+                    if (prev.achievements.some(x => x.id === a.id)) return prev;
+                    const next = {
+                      ...prev,
+                      achievements: [...prev.achievements, { id: a.id, unlockedAt: new Date().toISOString() }],
+                    };
+                    if (a.reward?.type === "honeypot") next.currency = next.currency + (a.reward.amount || 0);
+                    else if (a.reward?.type === "bagel") next.bagels = next.bagels + (a.reward.amount || 0);
+                    return next;
+                  });
+                }}
                 style={{
                   background: "rgba(255,255,255,0.07)",
                   border: "none", borderRadius: 8,
@@ -87,15 +98,22 @@ export default function DevPanel({ showAchievement, showToast, setS }) {
                   cursor: "pointer", textAlign: "left", width: "100%",
                 }}
               >
-                <span style={{ fontSize: 16 }}>{a.icon}</span>
-                <div>
-                  <div style={{ color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Nunito',sans-serif" }}>
+                <div style={{
+                  width: 22, height: 22, flexShrink: 0,
+                  borderRadius: 6, background: "rgba(255,255,255,0.1)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  overflow: "hidden",
+                }}>
+                  {a.reward?.icon && <img src={a.reward.icon} alt="" style={{ width: "85%", height: "85%", objectFit: "contain" }}/>}
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Nunito',sans-serif", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {a.name}
                   </div>
                   <div style={{ color: "#888", fontSize: 10, fontFamily: "'Nunito',sans-serif" }}>
                     {a.reward?.type
                       ? `${a.reward.type} x${a.reward.amount}`
-                      : a.reward?.rarity}
+                      : `${a.reward?.name || "item"} · ${a.reward?.rarity || "Common"}`}
                   </div>
                 </div>
               </button>

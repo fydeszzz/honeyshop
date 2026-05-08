@@ -88,6 +88,15 @@ HoneyShop/
 
 ## Changelog
 
+### 2026-05-08
+- **Achievements now load from Supabase** (`core.achievement`) — DB is source of truth for names, descriptions, and rewards; local constants only provide unlock conditions
+- **All 37 achievements** shown in Collection tab (up from 15 hardcoded)
+- Reward images use real PNGs from `public/images/currency/` — no emoji fallback
+- Achievement cards and reward popup unified to warm gold palette, consistent with AchievementToast
+- **Rewards are now granted on unlock** — Honeypot and Bagel counts update when an achievement triggers
+- Reward popup: currency rewards show quantity (×N) instead of "Common" rarity badge; activation date displayed
+- DevPanel "Fire Achievement Toast" now marks the achievement as unlocked in Collection and grants its reward
+
 ### 2026-05-07
 - Added **Achievement Toast** — push-notification style popup replacing the old gold toast; slides in from top, stays 3 seconds, auto-dismisses
 - Toast shows reward image with rarity-colored border (items) or gold border with quantity (currency rewards)
@@ -125,4 +134,4 @@ Ricy Hsu
 
 ---
 ## 📅 Last Updated
-May 7, 2026
+May 8, 2026
