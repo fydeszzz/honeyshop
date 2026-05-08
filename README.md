@@ -35,7 +35,9 @@ HoneyShop/
 │   ├── lib/
 │   │   └── supabase.js       # Supabase client (reads VITE_SUPABASE_* env vars)
 │   ├── components/
-│   │   └── Lightbox.jsx      # Full-screen photo viewer (click-to-expand)
+│   │   ├── Lightbox.jsx          # Full-screen photo viewer (click-to-expand)
+│   │   ├── AchievementToast.jsx  # Push-notification style achievement popup
+│   │   └── DevPanel.jsx          # Dev-only cheat panel (hidden in production)
 │   ├── tabs/
 │   │   ├── JournalTab.jsx    # Food journal + filter/sort bar + record cards
 │   │   ├── FridgeTab.jsx     # Ingredient stock & expiry tracking
@@ -86,6 +88,26 @@ HoneyShop/
 
 ## Changelog
 
+### 2026-05-07
+- **Achievement Toast** (`src/components/AchievementToast.jsx` — new)
+  - Replaced gold toast with a push-notification style popup: slides in from the top with a spring bounce, stays 3 seconds, then auto-dismisses
+  - Three-row vertical layout: `🏅 ACHIEVEMENT UNLOCKED` label / achievement name (large, 900 weight) / description (auto word-wrap)
+  - Right side reward slot: item rewards show `/img/{id}.png` with a rarity-colored border (Common gray · Rare green · Epic blue · Legendary purple · Unique orange); currency rewards show `/images/currency/{type}.png` with a gold border and `x{amount}` label in the same color as the achievement name
+  - New CSS keyframes in `App.jsx`: `achSlideIn` (spring cubic-bezier), `achShimmer` (gold strip animation)
+- **App.jsx**
+  - Added `achToast` state + `showAchievement()` callback; achievement detection now calls `showAchievement()` instead of the gold toast variant
+  - Imported and rendered `AchievementToast` and `DevPanel`
+- **constants.js** — achievement reward structure extended with `type` / `amount` fields for currency rewards
+  - `earn_500` → `{ type:"honeypot", amount:200 }`
+  - `log_10` → `{ type:"honeypot", amount:100 }`
+  - `streak_3` → `{ type:"bagel", amount:1 }`
+  - `streak_7` → `{ type:"bagel", amount:3 }`
+  - `first_bagel` → `{ type:"bagel", amount:1 }`
+- **DevPanel** (`src/components/DevPanel.jsx` — new, dev-only)
+  - Renders only when `import.meta.env.DEV` is true; hidden in production builds
+  - Toggle button fixed to bottom-right corner; panel lists all achievements with one-click fire
+  - Cheat shortcuts: +500 🍯 Honeypot, +5 🥯 Bagel, set streak to 3 or 7, reset all unlocked achievements
+
 ### 2026-04-17
 - Renamed entry types: "Home" → **Recipe** (orange), "Dining" → **Review** (green) across all cards and modals
 - `RecordModal`: header now shows `{nickname}'s Recipe / Review`; Close button replaced with **Save** (captures card as PNG via html2canvas; Web Share API on mobile, download fallback on desktop)
@@ -130,7 +152,7 @@ Ricy Hsu
 
 ---
 ## 📅 Last Updated
-April 23, 2026
+May 7, 2026
 
 ### 2026-04-23
 - **Bug fixes**

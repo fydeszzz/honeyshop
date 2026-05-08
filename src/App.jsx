@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "./lib/supabase";
 import { T, CURRENCY, ACHIEVEMENTS, GACHA_TABLE, GACHA_BAGEL_PRICE, STORE_ITEMS } from "./constants";
 import { load, save } from "./state";
+import AchievementToast from "./components/AchievementToast";
+import DevPanel        from "./components/DevPanel";
 import JournalTab    from "./tabs/JournalTab";
 import FridgeTab     from "./tabs/FridgeTab";
 import ShopTab       from "./tabs/ShopTab";
@@ -23,6 +25,7 @@ export default function App(){
   const [gachaAnim,setGachaAnim]=useState(false);
   const [showProfile,setShowProfile]=useState(false);
   const [myshopFlash,setMyshopFlash]=useState(false);
+  const [achToast,setAchToast]=useState(null);
   const [avatars,setAvatars]=useState([]);
   const [avatarBgcolors,setAvatarBgcolors]=useState([]);
 
@@ -35,6 +38,11 @@ export default function App(){
   },[]);
 
   const showToast=useCallback((msg,type="green")=>{setToast({msg,type});setTimeout(()=>setToast(null),2600);},[]);
+
+  const showAchievement=useCallback((ach)=>{
+    setAchToast(ach);
+    setTimeout(()=>setAchToast(null),3000);
+  },[]);
 
   useEffect(()=>{
     if(!supabase||_avatarsFetched)return;
@@ -68,10 +76,10 @@ export default function App(){
       const newAchs=ACHIEVEMENTS.filter(a=>!next.achievements.some(x=>x.id===a.id)&&a.cond(next)).map(a=>({id:a.id,unlockedAt:new Date().toISOString()}));
       const final=newAchs.length?{...next,achievements:[...next.achievements,...newAchs]}:next;
       save(final);
-      if(newAchs.length){const a=ACHIEVEMENTS.find(x=>x.id===newAchs[0].id);setTimeout(()=>showToast(`🏅 Achievement: ${a.name}!`,"gold"),700);}
+      if(newAchs.length){const a=ACHIEVEMENTS.find(x=>x.id===newAchs[0].id);setTimeout(()=>showAchievement(a),700);}
       return final;
     });
-  },[showToast]);
+  },[showToast,showAchievement]);
 
   const handleMyshopClick=useCallback(()=>{
     setTab("myshop");
@@ -184,6 +192,9 @@ export default function App(){
         .rarity-Legendary{animation:legendTrail 2s ease-in-out infinite;}
         .rarity-Unique{animation:uniqueSparkle 1.4s ease-in-out infinite;}
         @keyframes shopFlashAnim{0%{opacity:.7}100%{opacity:0}}
+        @keyframes achSlideIn{0%{opacity:0;transform:translateX(-50%) translateY(-110%)}60%{transform:translateX(-50%) translateY(6px)}80%{transform:translateX(-50%) translateY(-3px)}100%{opacity:1;transform:translateX(-50%) translateY(0)}}
+        @keyframes achSlideOut{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-110%)}}
+        @keyframes achShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
         @keyframes bagelPulse{0%,100%{box-shadow:0 0 0 4px #FFE0A0,0 0 0 8px #E8935A55,0 6px 20px rgba(200,100,20,.5)}50%{box-shadow:0 0 0 6px #FFE0A0,0 0 0 11px #E8935A77,0 8px 28px rgba(200,100,20,.7)}}
       `}</style>
 
@@ -201,7 +212,8 @@ export default function App(){
           animation:"shopFlashAnim 1s ease-out forwards"}}/>
       )}
 
-      {toast&&<div style={{position:"fixed",top:76,left:"50%",transform:"translateX(-50%)",background:toast.type==="gold"?`linear-gradient(135deg,${T.gold},#FF9B30)`:toast.type==="red"?"#FF6B8A":`linear-gradient(135deg,${T.aqua},${T.aquaDark})`,color:"#fff",padding:"10px 22px",borderRadius:28,fontWeight:800,fontSize:13,zIndex:9999,animation:"floatUp 2.5s forwards",whiteSpace:"nowrap",boxShadow:`0 6px 24px rgba(61,216,232,.3)`}}>{toast.msg}</div>}
+      <AchievementToast achievement={achToast}/>
+      {toast&&<div style={{position:"fixed",top:76,left:"50%",transform:"translateX(-50%)",background:toast.type==="red"?"#FF6B8A":`linear-gradient(135deg,${T.aqua},${T.aquaDark})`,color:"#fff",padding:"10px 22px",borderRadius:28,fontWeight:800,fontSize:13,zIndex:9999,animation:"floatUp 2.5s forwards",whiteSpace:"nowrap",boxShadow:`0 6px 24px rgba(61,216,232,.3)`}}>{toast.msg}</div>}
 
       {/* HEADER */}
       <div style={{flexShrink:0,zIndex:100,padding:"10px 13px 8px",background:"rgba(255,255,255,.85)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${T.aquaLight}`}}>
@@ -286,6 +298,7 @@ export default function App(){
       {modal?.type==="gacha" && <GachaModal  S={S} onClose={()=>setModal(null)} onGacha={()=>doGacha(modal.poolId,modal.count||1)} result={gachaRes} anim={gachaAnim} setResult={setGachaRes} pullCount={modal.count||1}/>}
       {modal==="record"      && selRec && <RecordModal record={selRec} onClose={()=>setModal(null)} onEdit={r=>{setSelRec(r);setModal("edit");}} nickname={S.profile.nickname}/>}
       {showProfile           && <ProfileModal S={S} setS={setS} onClose={()=>setShowProfile(false)} showToast={showToast} avatars={avatars} bgcolors={avatarBgcolors}/>}
+      <DevPanel showAchievement={showAchievement} showToast={showToast} setS={setS}/>
     </div>
   );
 }
