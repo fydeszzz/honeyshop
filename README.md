@@ -89,62 +89,35 @@ HoneyShop/
 ## Changelog
 
 ### 2026-05-07
-- **Achievement Toast** (`src/components/AchievementToast.jsx` — new)
-  - Replaced gold toast with a push-notification style popup: slides in from the top with a spring bounce, stays 3 seconds, then auto-dismisses
-  - Three-row vertical layout: `🏅 ACHIEVEMENT UNLOCKED` label / achievement name (large, 900 weight) / description (auto word-wrap)
-  - Right side reward slot: item rewards show `/img/{id}.png` with a rarity-colored border (Common gray · Rare green · Epic blue · Legendary purple · Unique orange); currency rewards show `/images/currency/{type}.png` with a gold border and `x{amount}` label in the same color as the achievement name
-  - New CSS keyframes in `App.jsx`: `achSlideIn` (spring cubic-bezier), `achShimmer` (gold strip animation)
-- **App.jsx**
-  - Added `achToast` state + `showAchievement()` callback; achievement detection now calls `showAchievement()` instead of the gold toast variant
-  - Imported and rendered `AchievementToast` and `DevPanel`
-- **constants.js** — achievement reward structure extended with `type` / `amount` fields for currency rewards
-  - `earn_500` → `{ type:"honeypot", amount:200 }`
-  - `log_10` → `{ type:"honeypot", amount:100 }`
-  - `streak_3` → `{ type:"bagel", amount:1 }`
-  - `streak_7` → `{ type:"bagel", amount:3 }`
-  - `first_bagel` → `{ type:"bagel", amount:1 }`
-- **DevPanel** (`src/components/DevPanel.jsx` — new, dev-only)
-  - Renders only when `import.meta.env.DEV` is true; hidden in production builds
-  - Toggle button fixed to bottom-right corner; panel lists all achievements with one-click fire
-  - Cheat shortcuts: +500 🍯 Honeypot, +5 🥯 Bagel, set streak to 3 or 7, reset all unlocked achievements
+- Added **Achievement Toast** — push-notification style popup replacing the old gold toast; slides in from top, stays 3 seconds, auto-dismisses
+- Toast shows reward image with rarity-colored border (items) or gold border with quantity (currency rewards)
+- 5 achievements updated to give currency rewards (honeypot / bagel) instead of items
+- Added **DevPanel** (dev-only) — floating cheat panel for triggering achievements and adjusting currency / streak during testing
+
+### 2026-04-23
+- Bug fixes: Supabase null guard, DST-safe streak calculation, zero-padded date display
+- Performance: key callbacks memoized with `useCallback` / `useMemo`; storage quota error now shows user-facing toast
 
 ### 2026-04-17
-- Renamed entry types: "Home" → **Recipe** (orange), "Dining" → **Review** (green) across all cards and modals
-- `RecordModal`: header now shows `{nickname}'s Recipe / Review`; Close button replaced with **Save** (captures card as PNG via html2canvas; Web Share API on mobile, download fallback on desktop)
-- Removed star rating system from Review (dine) entries in add form, card, and detail view
-- Location search replaced with **Photon (OpenStreetMap)** API — real address autocomplete, no API key; custom location fallback when no results found (type + confirm, like tags)
-- Address format corrected to `{number} {street}` order; all `📍` emoji replaced with `pin.png` icon
-- Journal page: added sticky **filter/sort bar** — All / Recipe / Review tabs + Sort dropdown (date newest/oldest + meal time: Breakfast, Brunch, Lunch, Dinner, Afternoon Tea)
-- Meal time list updated: removed Late Night, added Brunch (after Breakfast)
-- Record cards: category badge color-coded; watermark icon (spatula / plate) top-right at 60% opacity; clickable photo thumbnails open full-screen **Lightbox**
-- Added `src/components/Lightbox.jsx` — shared full-screen photo viewer with Esc-to-close
+- Entry types renamed: **Recipe** (home cook) and **Review** (dining out)
+- Location search replaced with **Photon (OpenStreetMap)** — real address autocomplete, no API key required
+- Save button on RecordModal exports entry card as PNG (Web Share on mobile, download on desktop)
+- Journal: sticky **filter/sort bar** added (Recipe / Review tabs + sort by date or meal time)
+- Photo thumbnails open full-screen **Lightbox** viewer
 
 ### 2026-04-15
-- Edit entry flow: clicking Edit pre-fills `AddModal` with existing data; `updateRecord` patches state by id
-- `RecordModal`: cleaned up UI (no icon, left-aligned details, ingredients table above notes, Edit/Close buttons)
-- `ProfileModal`: Favourite Tags replaced with chips + "+" search overlay, tags loaded from Supabase `core.tag`
-- General UI polish: removed emoji and unnecessary badges from journal cards, header, and preview step
+- Edit entry flow implemented — Edit pre-fills AddModal with existing data
+- ProfileModal: Favourite Tags replaced with chip search overlay, loaded from Supabase
 
 ### 2026-04-14
-- Refactored monolithic `App.jsx` (1388 lines) into a modular structure
-- Extracted all data tables and design tokens into `src/constants.js`
-- Extracted localStorage logic into `src/state.js`
-- Split all tab pages into `src/tabs/` (JournalTab, FridgeTab, ShopTab, StoreTab, CollectionTab)
-- Split all modals into `src/modals/` (AddModal, GachaModal, ProfileModal, RecordModal)
-- Fixed missing `mealIcon` definition (now exported from `constants.js`)
+- Refactored `App.jsx` into modular structure — tabs into `src/tabs/`, modals into `src/modals/`, data into `src/constants.js`, localStorage into `src/state.js`
 
 ### 2026-04-12
-- Integrated Supabase `core` schema: `avatar` and `avatar_bgcolor` tables drive profile avatar selection
-- Avatar picker refactored into a pop-up with two tabs (Avatar / Background Color)
-- Profile avatar stored as `avatarUrl` + `avatarBgHex` in app state (replaces `avatarEmoji`)
-- Header XP bar moved to full-width second row below avatar/name/currency
-- Settings emoji replaced with `setting.png` icon throughout
-- Added `src/lib/supabase.js` and `src/hooks/useAppData.js` for DB integration
+- Supabase integration: avatar and background color loaded from `core` schema
+- Header XP bar moved to full-width second row
 
 ### 2026-04-08
-- Initial release with hardcoded fallback data
-- Journal, Shop, Store (gacha), Fridge, Collection tabs
-- AddModal: type selection, ingredient search, meal time multi-select, location lock for Home Cook
+- Initial release: Journal, Shop, Store (gacha), Fridge, Collection tabs
 
 ---
 ## 👤 Author
@@ -153,17 +126,3 @@ Ricy Hsu
 ---
 ## 📅 Last Updated
 May 7, 2026
-
-### 2026-04-23
-- **Bug fixes**
-  - `supabase.js`: null guard restored — client now returns `null` when env vars are missing, making all `if(!supabase)` fallbacks functional
-  - `state.js`: achievement migration uses optional chaining (`?.length`) to prevent crash on corrupted state
-  - `App.jsx`: `addRecord` bagel bonus toast now consistent with state updater; DST-safe streak using `setDate(getDate()-1)` instead of subtracting `86400000ms`
-  - `RecordModal.jsx`: date display zero-padded for month, day, and hour
-- **Performance**
-  - `App.jsx`: 10 callbacks wrapped with `useCallback`; `shopLv` / `shopLvLabel` memoized with `useMemo`
-  - `FridgeTab.jsx`: `expiringSoon` filter memoized — no longer recalculates on every form keystroke
-  - `AddModal.jsx`: `suggestedTags` sort+filter memoized with `useMemo`
-- **Reliability**
-  - `App.jsx`: avatar fetch de-duplicated via module-level flag; failed fetch shows toast instead of silent `console.warn`
-  - `state.js`: `QuotaExceededError` now dispatches `hs:storage-full` custom event; `App.jsx` listens and shows user-facing toast
