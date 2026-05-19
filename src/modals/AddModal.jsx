@@ -206,7 +206,7 @@ export default function AddModal({S,onClose,onSubmit,editRecord}){
         {step===2&&<>
           <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:4}}>Title</div>
           <input value={form.title} onChange={e=>setF("title",e.target.value)} placeholder={type==="cook"?"e.g. Garlic Butter Pasta":"e.g. Dinner at Din Tai Fung"} style={{marginBottom:11}}/>
-          <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:5}}>Tags <span style={{color:T.textLight,fontWeight:600}}>(tap to select)</span></div>
+          <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:5}}>Tags</div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:11,alignItems:"center"}}>
             {suggestedTags.map(tag=>(
               <button key={tag.id} onClick={()=>toggleTag(tag.id)} style={{background:form.tags.includes(tag.id)?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.snow,border:`2px solid ${form.tags.includes(tag.id)?T.aqua:T.aquaLight}`,borderRadius:14,padding:"5px 10px",color:form.tags.includes(tag.id)?T.white:T.textMid,fontSize:11,fontWeight:700,transition:"all .18s"}}>{tag.label}</button>
@@ -217,7 +217,7 @@ export default function AddModal({S,onClose,onSubmit,editRecord}){
           {type==="cook"&&<>
             {/* ── Ingredients search box ───────────────────────────── */}
             <div style={{marginBottom:8}}>
-              <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:5}}>Ingredients <span style={{color:T.textLight,fontWeight:600}}>(optional · search to add)</span></div>
+              <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:5}}>Ingredients <span style={{color:T.textLight,fontWeight:600}}>(Optional)</span></div>
               <div style={{position:"relative"}}>
                 <input value={ingQuery} onChange={e=>setIngQuery(e.target.value)}
                   placeholder="Search ingredient e.g. chicken, egg..."
@@ -292,7 +292,7 @@ export default function AddModal({S,onClose,onSubmit,editRecord}){
             )}
           </>}
           <div style={{marginBottom:11}}>
-            <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:6}}>Meal Time <span style={{color:T.textLight,fontWeight:600}}>(select all that apply)</span></div>
+            <div style={{fontWeight:800,color:T.aquaDark,fontSize:14,marginBottom:6}}>Meal Time <span style={{color:T.textLight,fontWeight:600}}>(Select all that apply)</span></div>
             <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
               {MEAL_TIMES.map(m=>{const sel=form.mealTimes.includes(m);return(
                 <button key={m} onClick={()=>setF("mealTimes",sel?form.mealTimes.filter(x=>x!==m):[...form.mealTimes,m])} style={{background:sel?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.snow,border:`2px solid ${sel?T.aqua:T.aquaLight}`,borderRadius:14,padding:"6px 11px",color:sel?T.white:T.textMid,fontSize:12,fontWeight:700,transition:"all .18s"}}>

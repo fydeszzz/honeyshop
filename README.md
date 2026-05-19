@@ -74,7 +74,7 @@ HoneyShop/
 | Tab | Key Component | Description |
 |---|---|---|
 | <img src="public/images/icon/journal.png" width="32" style="vertical-align:center"> Journal | `JournalTab` | Log home-cook or dining entries, earn Honeypot |
-| <img src="public/images/icon/fridge.png" width="32" style="vertical-align:center"> Fridge | `FridgeTab` | Track ingredient stock & expiry dates **[Coming Soon]** |
+| <img src="public/images/icon/fridge.png" width="32" style="vertical-align:center"> Fridge | `FridgeTab` | Track ingredient stock & expiry dates with live DB search |
 | <img src="public/images/icon/myshop.png" width="32" style="vertical-align:center"> My Shop | `ShopTab` | Decorate restaurant, manage NPCs, view stats |
 | <img src="public/images/icon/store.png" width="32" style="vertical-align:center"> Store | `StoreTab` | Buy items or pull gacha with Bagel Tokens |
 | <img src="public/images/icon/achievement.png" width="32" style="vertical-align:center"> Collection | `CollectionTab` | Achievements with reward slots **[Coming Soon]** |
@@ -88,31 +88,27 @@ HoneyShop/
 
 ## Changelog
 
+### 2026-05-19
+- **Fridge tab fully implemented**
+- Name field connected to Supabase `ingredient` table (live search with 280 ms debounce)
+- Unified UI of all pages
+
 ### 2026-05-08
-- **Achievements now load from Supabase** (`core.achievement`) — DB is source of truth for names, descriptions, and rewards; local constants only provide unlock conditions
+- **Achievements now load from Supabase** (`core.achievement`)
 - **All 37 achievements** shown in Collection tab (up from 15 hardcoded)
-- Reward images use real PNGs from `public/images/currency/` — no emoji fallback
-- Achievement cards and reward popup unified to warm gold palette, consistent with AchievementToast
-- **Rewards are now granted on unlock** — Honeypot and Bagel counts update when an achievement triggers
-- Reward popup: currency rewards show quantity (×N) instead of "Common" rarity badge; activation date displayed
-- DevPanel "Fire Achievement Toast" now marks the achievement as unlocked in Collection and grants its reward
+- **Rewards are now granted on unlock**
 
 ### 2026-05-07
-- Added **Achievement Toast** — push-notification style popup replacing the old gold toast; slides in from top, stays 3 seconds, auto-dismisses
-- Toast shows reward image with rarity-colored border (items) or gold border with quantity (currency rewards)
-- 5 achievements updated to give currency rewards (honeypot / bagel) instead of items
-- Added **DevPanel** (dev-only) — floating cheat panel for triggering achievements and adjusting currency / streak during testing
+- Added **Achievement Toast** — push-notification style popup replacing the old gold toast
+- Added **DevPanel** (dev-only)
 
 ### 2026-04-23
 - Bug fixes: Supabase null guard, DST-safe streak calculation, zero-padded date display
 - Performance: key callbacks memoized with `useCallback` / `useMemo`; storage quota error now shows user-facing toast
 
 ### 2026-04-17
-- Entry types renamed: **Recipe** (home cook) and **Review** (dining out)
-- Location search replaced with **Photon (OpenStreetMap)** — real address autocomplete, no API key required
 - Save button on RecordModal exports entry card as PNG (Web Share on mobile, download on desktop)
 - Journal: sticky **filter/sort bar** added (Recipe / Review tabs + sort by date or meal time)
-- Photo thumbnails open full-screen **Lightbox** viewer
 
 ### 2026-04-15
 - Edit entry flow implemented — Edit pre-fills AddModal with existing data
@@ -134,4 +130,4 @@ Ricy Hsu
 
 ---
 ## 📅 Last Updated
-May 8, 2026
+May 19, 2026

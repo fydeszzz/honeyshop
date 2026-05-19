@@ -102,8 +102,8 @@ export default function JournalTab({ S, onAdd, onSel, onDelete }) {
 function EmptyJournal({ onAdd }) {
   return (
     <div style={{ padding: "28px 22px", textAlign: "center", animation: "fadeSlide .4s ease" }}>
-      <img src="/images/icon/plate.png" style={{ width: 88, height: 88, objectFit: "contain", animation: "drift 3s ease-in-out infinite", display: "block", margin: "0 auto 10px" }} />
-      <div style={{ fontWeight: 900, fontSize: 21, color: T.textDark, marginBottom: 8 }}>Your journal is empty!</div>
+      <img src="/images/icon/plate.png" style={{ width: 100, height: 100, objectFit: "contain", animation: "drift 3s ease-in-out infinite", display: "block", margin: "0 auto 10px" }} />
+      <div style={{ fontWeight: 900, fontSize: 20, color: T.textDark, marginBottom: 8 }}>Your journal is empty!</div>
       <div style={{ color: T.textMid, fontSize: 14, fontWeight: 600, lineHeight: 1.65, marginBottom: 18 }}>Log your first dish or dining experience<br />and start your food adventure ✦</div>
       <button onClick={onAdd} style={{ background: `linear-gradient(135deg,${T.pink},${T.purple})`, border: "none", borderRadius: 25, padding: "5px 40px", color: T.white, fontSize: 16, fontWeight: 900, boxShadow: `0 6px 22px ${T.pinkLight}`, display: "inline-flex", alignItems: "center", gap: 10 }}>
         <img src="/images/icon/spatula_click.png" style={{ width: 48, height: 48, objectFit: "contain" }} />

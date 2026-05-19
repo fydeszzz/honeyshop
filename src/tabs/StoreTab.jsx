@@ -7,7 +7,7 @@ export default function StoreTab({S,onGacha,onBuy}){
     <div style={{animation:"fadeSlide .3s ease"}}>
       <div style={{display:"flex",gap:8,padding:"13px 14px 12px"}}>
         {[["store","Store"],["gacha","Gacha"]].map(([id,label])=>(
-          <button key={id} onClick={()=>setView(id)} style={{flex:1,background:view===id?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.white,border:view===id?"none":`2px solid ${T.aquaLight}`,borderRadius:16,padding:"10px",color:view===id?T.white:T.textMid,fontSize:16,fontWeight:900,boxShadow:view===id?`0 4px 14px ${T.aquaLight}`:"none",transition:"all .18s",display:"inline-flex",alignItems:"center",justifyContent:"center",gap:5}}>{label}</button>
+          <button key={id} onClick={()=>setView(id)} style={{flex:1,background:view===id?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.white,border:view===id?"none":`2px solid ${T.aquaLight}`,borderRadius:16,padding:"8px",color:view===id?T.white:T.textMid,fontSize:13,fontWeight:800,boxShadow:view===id?`0 4px 14px ${T.aquaLight}`:"none",transition:"all .18s",display:"inline-flex",alignItems:"center",justifyContent:"center",gap:5}}>{label}</button>
         ))}
       </div>
       {view==="store"&&<div style={{padding:"0 14px 13px"}}><ShopBuyView S={S} onBuy={onBuy}/></div>}
@@ -53,9 +53,9 @@ function ShopBuyView({S,onBuy}){
               style={{width:"100%",
                 background:owned?"#E0E0E0":canBuy?`linear-gradient(135deg,${T.aqua},${T.pink})`:T.snow,
                 border:owned||canBuy?"none":`2px solid ${T.aquaLight}`,
-                borderRadius:12,padding:"5px",
+                borderRadius:16,padding:"8px",
                 color:owned?"#9e9e9e":canBuy?"#043e41":"#0599b3",
-                fontSize:14,fontWeight:800}}>
+                fontSize:13,fontWeight:800}}>
               {owned?"✅ Owned":<>{item.price} <img src={CURRENCY.honeypot.icon} style={{width:24,height:24,objectFit:"contain",verticalAlign:"middle"}}/></>}
             </button>
           </div>
