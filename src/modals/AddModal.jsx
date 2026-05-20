@@ -323,10 +323,7 @@ export default function AddModal({S,onClose,onSubmit,editRecord}){
           </div>
           <textarea value={form.notes} onChange={e=>setF("notes",e.target.value)} rows={3} placeholder="Share your experience, taste, recipe tips... (min. 30 characters)" style={{marginBottom:4,resize:"none",borderColor:form.notes.length>0&&!notesOk?"#FF6B8A":undefined}}/>
           {form.notes.length>0&&!notesOk&&<div style={{color:"#FF6B8A",fontSize:11,fontWeight:700,marginBottom:8}}>{30-form.notes.length} more characters needed</div>}
-          <div style={{background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:"10px 13px",marginBottom:14,display:"flex",justifyContent:"space-between",alignItems:"center",opacity:.7}}>
-            <div><div style={{fontWeight:800,color:T.textDark,fontSize:12}}>🔒 Privacy</div><div style={{fontSize:11,color:T.textMid,fontWeight:600}}>Social features coming in future update</div></div>
-            <div style={{background:T.aquaPale,borderRadius:10,padding:"3px 10px",fontWeight:800,fontSize:11,color:T.aquaDark}}>Public</div>
-          </div>
+          {/* Privacy section hidden — re-enable when social features launch */}
           <div style={{display:"flex",gap:8}}>
             <button onClick={()=>setStep(1)} style={{flex:1,background:T.snow,border:`2px solid ${T.aquaLight}`,borderRadius:14,padding:11,color:T.textMid,fontSize:13,fontWeight:800}}>Back</button>
             <button onClick={()=>{if(!step2Ok)return;setStep(3);}} style={{flex:2,background:step2Ok?`linear-gradient(135deg,${T.pink},${T.purple})`:T.snow,border:"none",borderRadius:14,padding:11,color:step2Ok?T.white:T.textLight,fontSize:13,fontWeight:900,boxShadow:step2Ok?`0 4px 14px ${T.pinkLight}`:"none"}}>

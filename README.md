@@ -69,6 +69,21 @@ HoneyShop/
 - user_data_schema
 - analytics_schema
 
+## Use Case
+HoneyShop turns everyday cooking and dining into a rewarding habit. Here is a typical user flow:
+
+**1. Browse your food journal**
+Your entries live on the main Journal page. Each card shows the title, category, tags, and a photo. You can filter by Recipe or Review, and sort by date or meal time.
+<img src="docs/mainpage.png" width="260">
+
+**2. Add photos**
+When creating a new entry, upload up to 9 photos to bring the moment to life.
+<img src="docs/addphotos.png" width="260">
+
+**3. Fill in the details**
+Set a title, pick cuisine tags, add ingredients, choose a meal time, and write a short note. Every completed entry earns you Honeypot currency to spend in the Shop.
+<img src="docs/addrecipe.png" width="260">
+
 ## App Tabs
 
 | Tab | Key Component | Description |

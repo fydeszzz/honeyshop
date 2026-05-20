@@ -53,11 +53,14 @@ export default function App(){
       supabase.from("avatar").select("*"),
       supabase.from("avatar_bgcolor").select("*"),
     ]).then(([avRes,bgRes])=>{
+      if(avRes.error)console.error("[avatar] fetch error:",avRes.error);
+      if(bgRes.error)console.error("[avatar_bgcolor] fetch error:",bgRes.error);
       if(avRes.data){
         const active=avRes.data.filter(a=>a.avatar_active).map(a=>({
           ...a,
           avatar_url:a.avatar_url?.startsWith("/")?a.avatar_url:`/${a.avatar_url}`,
         }));
+        console.log("[avatar] active count:",active.length,"sample:",active[0]);
         if(active.length)setAvatars(active);
       }
       if(bgRes.data&&bgRes.data.length){
@@ -222,7 +225,7 @@ export default function App(){
   },[shopLv]);
 
   return(
-    <div style={{fontFamily:"'Nunito',sans-serif",background:`linear-gradient(160deg,${T.aquaPale} 0%,${T.white} 50%,${T.pinkPale} 100%)`,height:"min(100dvh, 852px)",maxWidth:393,margin:"0 auto",position:"relative",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+    <div style={{fontFamily:"'Nunito',sans-serif",background:`linear-gradient(160deg,${T.aquaPale} 0%,${T.white} 50%,${T.pinkPale} 100%)`,height:"min(100dvh, 852px)",maxWidth:393,margin:"0 auto",position:"relative",display:"flex",flexDirection:"column",overflow:"hidden",border:`1.5px solid ${T.aquaDark}`,borderRadius:32,boxSizing:"border-box"}}>
       <style>{`
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
         ::-webkit-scrollbar{width:0;}
